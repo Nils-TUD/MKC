@@ -20,6 +20,8 @@
 #include "ec.h"
 #include "arch.h"
 #include "cpu.h"
+#include "ptab.h"
+#include "extern.h"
 
 Ec *Ec::current = 0;
 
@@ -65,7 +67,19 @@ void Ec::ret_user_iret()
 
 void Ec::root_invoke()
 {
+    // usercode starts at USER_ADDR in user virtual space.
+    mword code = USER_ADDR;
+
+    Ptab::insert_mapping(PAGE_SIZE, Kalloc::virt2phys(Kalloc::allocator.alloc_page(1)), 0x7);
+    Ptab::insert_mapping(USER_ADDR, reinterpret_cast<mword>(&USER_P), 0x7);
+
+    printf("iret to user ...\n");
+
+    // TODO prepare stack and iret to user
+
     FAIL;
+
+    UNREACHED;
 }
 
 void Ec::handle_tss()
