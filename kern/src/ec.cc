@@ -65,6 +65,17 @@ void Ec::ret_user_iret()
 
 void Ec::root_invoke()
 {
+    printf("root_invoke\n");
+
+    // TODO
+    // - current->regs.rdi holds pointer to Multiboot info (see multiboot.h)
+    // - get mbi remapped, find single Multiboot_module
+    // - get module descriptor mapped, print physical addr and size, check
+    //   if its size is correct (should be equal to filesize of user.nova)
+    // - get module remapped (its an elf binary, see elf.h for details)
+    // - sanity check and decode elf binary
+    // - finally start user module via ret_user_iret()
+
     FAIL;
 }
 
