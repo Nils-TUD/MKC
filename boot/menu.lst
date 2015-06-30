@@ -1,0 +1,5 @@
+timeout 0
+default 1
+
+title hypervisor
+kernel (nd)/hypervisor
