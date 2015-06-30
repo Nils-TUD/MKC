@@ -1,5 +1,6 @@
 c compile :
 	make -C kern/build
+	make -C user/build
 
 QEMU = qemu-system-x86_64
 ISO_DIR = dist/iso
@@ -9,6 +10,7 @@ QEMU_ARGS = -cdrom $(ISO) -boot d -serial stdio -display none -no-reboot
 iso : compile
 	mkdir -p $(ISO_DIR)/boot/grub
 	cp kern/build/hypervisor $(ISO_DIR)/boot/hypervisor
+	cp user/build/user.nova $(ISO_DIR)/boot/user.nova
 	cp boot/grub/grub.cfg $(ISO_DIR)/boot/grub/grub.cfg
 	grub-mkrescue -o $(ISO) $(ISO_DIR)
 
@@ -25,7 +27,9 @@ format :
 
 cl clean :
 	make -C kern/build clean
+	make -C user/build clean
 	rm -rf dist
 
 cla cleanall : clean
 	make -C kern/build cleanall
+	make -C user/build cleanall
