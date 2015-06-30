@@ -84,6 +84,8 @@ class Ec
         [[gnu::hot, noreturn, gnu::regparm(1)]]
         static void syscall_handler(uint8) asm("syscall_handler");
 
+        static void sys_dump();
+
         [[gnu::always_inline]]
         static inline void *operator new(size_t)
         {

@@ -127,11 +127,27 @@ void Ec::handle_tss()
 
 void Ec::syscall_handler(uint8 n)
 {
-    printf("syscall %d\n", n);
+    switch (n) {
+    case 0:
+        sys_dump();
+        break;
+
+    default:
+        printf("syscall %d - unknown\n", n);
+        break;
+    }
 
     ret_user_sysexit();
 
     UNREACHED;
+}
+
+void Ec::sys_dump()
+{
+    printf("EC:%p SYS_DUMP : %#lx, %#lx\n",
+           current,
+           current->sys_regs()->rsi,
+           current->sys_regs()->rdx);
 }
 
 bool Ec::handle_exc_ts(Exc_regs *r)
