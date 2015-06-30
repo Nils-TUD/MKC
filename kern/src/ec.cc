@@ -91,7 +91,22 @@ void Ec::handle_tss()
 
 void Ec::syscall_handler(uint8 n)
 {
-    printf("syscall %d\n", n);
+    Sys_regs *r = current->sys_regs();
+
+    switch (n) {
+    case 0: // nop
+        printf("syscall %d - nop\n", n);
+        break;
+
+    case 1: // add
+        printf("syscall %d - add : %lu + %lu\n", n, r->rsi, r->rdx);
+        r->rsi += r->rdx;
+        break;
+
+    default:
+        printf("syscall %d - unknown\n", n);
+        break;
+    }
 
     ret_user_sysexit();
 
