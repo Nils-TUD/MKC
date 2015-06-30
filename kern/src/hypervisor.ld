@@ -25,6 +25,7 @@ ENTRY(__start)
 PHDRS
 {
     init    PT_LOAD FLAGS(5);
+    user    PT_LOAD FLAGS(5);
     kern_rx PT_LOAD FLAGS(5);
     kern_rw PT_LOAD FLAGS(6);
 }
@@ -40,7 +41,24 @@ SECTIONS
     . = ALIGN(4K) + 4K; PROVIDE (STACK = .);
 
     PROVIDE (LOAD_E = .);
+
+    /* USER_P is the physical (LMA) address where .user bytes are stored.
+     * Place it right here (at LOAD_E, before the 4M-aligned kernel image)
+     * so it does NOT collide with the .text LMA which uses ALIGN(4M).
+     * OFFSET_U is computed from this explicit physical base. */
+    PROVIDE (USER_P = LOAD_E);
+    OFFSET_U = USER_ADDR - USER_P;
+
+    /* OFFSET must be assigned while . is still a low (< 4M) address so that
+     * ALIGN(4M) returns a sensible value.  Assigning after .user would make
+     * ALIGN(4M) snap to 2^47 (the next 4M boundary above USER_ADDR). */
     OFFSET = LINK_ADDR - ALIGN (4M);
+
+    .user USER_ADDR : AT (USER_P)
+    {
+        . = ALIGN(4K);
+        KEEP (*(.user))
+    } : user
     PROVIDE (LINK_P = LINK_ADDR - OFFSET);
 
     .text LINK_ADDR : AT (ADDR (.text) - OFFSET)
