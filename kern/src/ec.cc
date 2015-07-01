@@ -34,6 +34,8 @@ Ec::Ec(void (*f)(), mword mbi) : cont(f)
     regs.cs  = SEL_USER_CODE;
     regs.ss  = SEL_USER_DATA;
     regs.rfl = 0x200; // IF = 1
+
+    enqueue();
 }
 
 // only used by syscall create thread (EC+SC)
@@ -45,6 +47,20 @@ Ec::Ec(mword rip, mword rsp)
     regs.rfl = 0x200; // IF = 1
     regs.rip = rip;
     regs.rsp = rsp;
+
+    enqueue();
+}
+
+void Ec::enqueue()
+{
+    if (!current) {
+        next = prev = this;
+    }
+    else {
+        next       = current;
+        prev       = current->prev;
+        next->prev = prev->next = this;
+    }
 }
 
 void Ec::ret_user_sysexit()

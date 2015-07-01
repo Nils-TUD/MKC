@@ -30,6 +30,7 @@ class Ec
     private:
         void     (*cont)();
         Exc_regs regs;
+        Ec      *prev, *next;
 
         [[gnu::regparm(1)]]
         static void handle_exc(Exc_regs *) asm("exc_handler");
@@ -50,6 +51,8 @@ class Ec
         {
             return &regs;
         }
+
+        void enqueue();
 
     public:
         static Ec *current;
