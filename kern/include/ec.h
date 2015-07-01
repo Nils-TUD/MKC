@@ -91,6 +91,8 @@ class Ec
 
         static void sys_create_ec();
 
+        static void sys_yield();
+
         [[gnu::always_inline]]
         static inline void *operator new(size_t)
         {

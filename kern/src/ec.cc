@@ -152,6 +152,10 @@ void Ec::syscall_handler(uint8 n)
         sys_create_ec();
         break;
 
+    case 2:
+        sys_yield();
+        break;
+
     default:
         printf("syscall %d - unknown\n", n);
         break;
@@ -177,6 +181,14 @@ void Ec::sys_create_ec()
     Ec   *ec  = new Ec(rip, rsp);
 
     printf("EC:%p SYS_CREATE_EC EC:%p (RIP=%#lx RSP=%#lx)\n", current, ec, rip, rsp);
+}
+
+void Ec::sys_yield()
+{
+    printf("EC:%p SYS_YIELD to EC:%p\n", current, current->next);
+
+    current->cont = ret_user_sysexit;
+    current->next->make_current();
 }
 
 bool Ec::handle_exc_ts(Exc_regs *r)
