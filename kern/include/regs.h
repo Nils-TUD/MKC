@@ -36,7 +36,7 @@ class Sys_regs
                 mword   ecx;
                 mword   eax;
             };
-            mword gpr[];
+            mword gpr[8];
         };
 };
 
