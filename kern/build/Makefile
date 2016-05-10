@@ -68,7 +68,7 @@ WFLAGS		+= $(call check,-Wstrict-overflow=5)
 WFLAGS		+= $(call check,-Wvolatile-register-var)
 
 # Compiler flags
-SFLAGS		:= $(PFLAGS) $(DFLAGS)
+SFLAGS		:= $(PFLAGS) $(DFLAGS) $(AFLAGS)
 CFLAGS		:= $(PFLAGS) $(DFLAGS) $(OFLAGS) $(AFLAGS) $(FFLAGS) $(WFLAGS)
 
 # Linker flags
