@@ -4,7 +4,7 @@ c compile :
 QEMU = qemu-system-i386
 
 r run :
-	$(QEMU) -kernel kern/build/hypervisor -display sdl -serial stdio
+	$(QEMU) -kernel kern/build/hypervisor -serial stdio -display none
 
 cl clean :
 	make -C kern/build clean
