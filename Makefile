@@ -2,9 +2,15 @@ c compile :
 	make -C kern/build
 
 QEMU = qemu-system-i386
+QEMU_ARGS = -kernel kern/build/hypervisor -serial stdio -display none
 
 r run :
-	$(QEMU) -kernel kern/build/hypervisor -serial stdio -display none
+	$(QEMU) $(QEMU_ARGS)
+
+d dbg :
+	$(QEMU) $(QEMU_ARGS) -S -s &
+	gdb kern/build/hypervisor --init-eval-command="target remote localhost:1234"
+	killall $(QEMU)
 
 cl clean :
 	make -C kern/build clean
