@@ -4,10 +4,10 @@ c compile :
 QEMU = qemu-system-i386
 QEMU_ARGS = -kernel kern/build/hypervisor -serial stdio -display none
 
-r run :
+r run : compile
 	$(QEMU) $(QEMU_ARGS)
 
-d dbg :
+d dbg : compile
 	$(QEMU) $(QEMU_ARGS) -S -s &
 	gdb --tui kern/build/hypervisor --init-eval-command="target remote localhost:1234"
 	killall $(QEMU)
