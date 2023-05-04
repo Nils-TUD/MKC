@@ -48,7 +48,7 @@ PFLAGS		:= $(addprefix -D, $(DEFINES)) $(addprefix -I, $(INC_DIR))
 
 # Optimization options
 DFLAGS		:= -MP -MMD -pipe
-OFLAGS		:= -Os
+OFLAGS		:= -Os -g
 AFLAGS		:= -march=i686 -mpreferred-stack-boundary=2 -mregparm=3
 AFLAGS		+= -m32
 
