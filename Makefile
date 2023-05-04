@@ -9,7 +9,7 @@ r run :
 
 d dbg :
 	$(QEMU) $(QEMU_ARGS) -S -s &
-	gdb kern/build/hypervisor --init-eval-command="target remote localhost:1234"
+	gdb --tui kern/build/hypervisor --init-eval-command="target remote localhost:1234"
 	killall $(QEMU)
 
 cl clean :
