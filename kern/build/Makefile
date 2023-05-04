@@ -53,7 +53,7 @@ AFLAGS		:= -march=i686 -mpreferred-stack-boundary=2 -mregparm=3
 AFLAGS		+= -m32
 
 # Language options
-FFLAGS		:= -fdata-sections -ffunction-sections -fomit-frame-pointer -freg-struct-return -freorder-blocks -funit-at-a-time
+FFLAGS		:= -fdata-sections -ffunction-sections -freg-struct-return -freorder-blocks -funit-at-a-time
 FFLAGS		+= -fno-exceptions -fno-rtti
 FFLAGS		+= $(call check,-fno-stack-protector)
 FFLAGS		+= $(call check,-fvisibility-inlines-hidden)
