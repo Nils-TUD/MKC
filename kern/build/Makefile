@@ -71,7 +71,7 @@ SFLAGS		:= $(PFLAGS) $(DFLAGS) $(AFLAGS)
 CFLAGS		:= $(PFLAGS) $(DFLAGS) $(OFLAGS) $(AFLAGS) $(FFLAGS) $(WFLAGS)
 
 # Linker flags
-LFLAGS		:= --gc-sections --warn-common -static -n -T
+LFLAGS		:= --gc-sections --warn-common -static -T
 
 # Rules
 %.o:		%.ld $(MAKEFILE_LIST)

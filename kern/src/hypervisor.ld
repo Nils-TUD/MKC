@@ -24,8 +24,9 @@ ENTRY(__start)
 
 PHDRS
 {
-    init    PT_LOAD;
-    kern    PT_LOAD;
+    init    PT_LOAD FLAGS(5);
+    kern_rx PT_LOAD FLAGS(5);
+    kern_rw PT_LOAD FLAGS(6);
 }
 
 SECTIONS
@@ -46,12 +47,19 @@ SECTIONS
     {
         *(.text.hot)
         *(.text .text.* .gnu.linkonce.t.*)
-    } : kern
+    } : kern_rx
 
     .rodata : AT (ADDR (.rodata) - OFFSET)
     {
         *(.rodata .rodata.* .gnu.linkonce.r.*)
-    } : kern
+    } : kern_rx
+
+    .fixup : AT (ADDR (.fixup) - OFFSET)
+    {
+        PROVIDE (FIXUP_S = .);
+        KEEP (*(.fixup))
+        PROVIDE (FIXUP_E = .);
+    } : kern_rx
 
     .init_array : AT (ADDR (.init_array) - OFFSET)
     {
@@ -63,12 +71,12 @@ SECTIONS
         KEEP (*(SORT_BY_INIT_PRIORITY (.init_array.*) SORT_BY_INIT_PRIORITY (.ctors.*)))
         KEEP (*(.init_array .ctors))
         PROVIDE (CTORS_E = .);
-    } : kern
+    } : kern_rw
 
     .data : AT (ADDR (.data) - OFFSET)
     {
         *(.data .data.* .gnu.linkonce.d.*)
-    } : kern
+    } : kern_rw
 
     .bss : AT (ADDR (.bss) - OFFSET)
     {
@@ -90,7 +98,7 @@ SECTIONS
 
         PROVIDE (_mempool_e = .);
 
-    } : kern
+    } : kern_rw
 
     /DISCARD/ :
     {
