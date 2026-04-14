@@ -73,6 +73,9 @@ class Msr
             IA32_DS_AREA            = 0x600,
             IA32_EXT_XAPIC          = 0x800,
             IA32_EFER               = 0xc0000080,
+            IA32_STAR               = 0xc0000081,   /* SYSCALL target CS/SS selectors */
+            IA32_LSTAR              = 0xc0000082,   /* SYSCALL target RIP (64-bit mode) */
+            IA32_FMASK              = 0xc0000084,   /* SYSCALL RFLAGS mask */
 
             AMD_IPMR                = 0xc0010055,
             AMD_SVM_HSAVE_PA        = 0xc0010117,

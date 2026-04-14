@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -25,13 +26,16 @@ ALIGNED(8) Gdt Gdt::gdt[SEL_MAX >> 3];
 
 void Gdt::build()
 {
-    gdt[SEL_KERN_CODE >> 3].set (CODE_XRA, PAGES, BIT_32, 0, 0, ~0ul);
-    gdt[SEL_KERN_DATA >> 3].set (DATA_RWA, PAGES, BIT_32, 0, 0, ~0ul);
+    // 64-bit code/data: L=1, D=0 (BIT_16 clears the D bit; L bit set via l=true)
+    gdt[SEL_KERN_CODE >> 3].set32 (CODE_XRA, PAGES, BIT_16, true,  0, 0, ~0ul);
+    gdt[SEL_KERN_DATA >> 3].set32 (DATA_RWA, PAGES, BIT_16, true,  0, 0, ~0ul);
 
-    gdt[SEL_USER_CODE >> 3].set (CODE_XRA, PAGES, BIT_32, 3, 0, ~0ul);
-    gdt[SEL_USER_DATA >> 3].set (DATA_RWA, PAGES, BIT_32, 3, 0, ~0ul);
+    // USER_DATA before USER_CODE — required for SYSCALL/SYSRET selector layout
+    gdt[SEL_USER_DATA >> 3].set32 (DATA_RWA, PAGES, BIT_16, true,  3, 0, ~0ul);
+    gdt[SEL_USER_CODE >> 3].set32 (CODE_XRA, PAGES, BIT_16, true,  3, 0, ~0ul);
 
-    // XXX: This should use compile-time fixed addresses
-    gdt[SEL_TSS_RUN >> 3].set (SYS_TSS, BYTES, BIT_16, 0, reinterpret_cast<mword>(&Tss::run), IOBMP_EADDR - reinterpret_cast<mword>(&Tss::run));
-    gdt[SEL_TSS_DBF >> 3].set (SYS_TSS, BYTES, BIT_16, 0, reinterpret_cast<mword>(&Tss::dbf), sizeof (Tss) - 1);
+    // TSS descriptor is 16 bytes in 64-bit mode (set64 writes two GDT slots)
+    gdt[SEL_TSS_RUN >> 3].set64 (SYS_TSS, BYTES, BIT_16, false, 0,
+                                  reinterpret_cast<mword>(&Tss::run),
+                                  IOBMP_EADDR - reinterpret_cast<mword>(&Tss::run));
 }

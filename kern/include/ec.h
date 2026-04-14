@@ -58,7 +58,7 @@ class Ec
 
             Tss::run.sp0 = reinterpret_cast<mword>(exc_regs() + 1);
 
-            asm volatile ("mov %0, %%esp;"
+            asm volatile ("mov %0, %%rsp;"
                           "jmp *%1"
                           : : "g" (KSTCK_ADDR + PAGE_SIZE), "rm" (cont) : "memory"); UNREACHED;
         }

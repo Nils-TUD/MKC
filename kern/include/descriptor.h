@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -74,6 +75,6 @@ class Pseudo_descriptor
 
     public:
         ALWAYS_INLINE
-        inline Pseudo_descriptor (uint16 l, mword b) : limit (l), base (b) {}
+        inline Pseudo_descriptor (mword l, mword b) : limit (static_cast<uint16>(l)), base (b) {}
 };
 #pragma pack()

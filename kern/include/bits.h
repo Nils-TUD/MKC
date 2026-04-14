@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -55,20 +56,16 @@ inline unsigned long max_order (mword base, size_t size)
     return o;
 }
 
+/*
+ * 64-bit division: on x86-64 the compiler can use native 64-bit divide.
+ * The old x86-32 version used two divl instructions with "=A" (EDX:EAX),
+ * which is invalid on x86-64 where "A" means only RAX.
+ */
 ALWAYS_INLINE
 inline uint64 div64 (uint64 n, uint32 d, uint32 *r)
 {
-    uint64 q;
-    asm volatile ("divl %5;"
-                  "xchg %1, %2;"
-                  "divl %5;"
-                  "xchg %1, %3;"
-                  : "=A" (q),   // quotient
-                    "=r" (*r)   // remainder
-                  : "a"  (static_cast<uint32>(n >> 32)),
-                    "d"  (0),
-                    "1"  (static_cast<uint32>(n)),
-                    "rm" (d));
+    uint64 q = n / d;
+    *r = static_cast<uint32>(n % d);
     return q;
 }
 

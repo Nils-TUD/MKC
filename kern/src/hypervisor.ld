@@ -18,8 +18,8 @@
 
 #include "memory.h"
 
-OUTPUT_FORMAT("elf32-i386")
-OUTPUT_ARCH("i386")
+OUTPUT_FORMAT("elf64-x86-64")
+OUTPUT_ARCH("i386:x86-64")
 ENTRY(__start)
 
 PHDRS
@@ -75,7 +75,12 @@ SECTIONS
         *(.bss .bss.* .gnu.linkonce.b.*)
 
         . = ALIGN(4K);
-        PROVIDE (KERN_PDIR  = . - OFFSET); . += 4K;
+        PROVIDE (PDBR   = . - OFFSET);
+        PROVIDE (LVL4   = . - OFFSET); . += 4K;
+        PROVIDE (LVL3L  = . - OFFSET); . += 4K;
+        PROVIDE (LVL3H  = . - OFFSET); . += 4K;
+        PROVIDE (LVL2L  = . - OFFSET); . += 4K;
+        PROVIDE (LVL2H  = . - OFFSET); . += 4K;
         _mempool_f = .;
 
         . += 16M;

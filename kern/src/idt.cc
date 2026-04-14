@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -24,11 +25,17 @@ ALIGNED(8) Idt Idt::idt[VEC_MAX];
 
 void Idt::build()
 {
+    // tss_handler is Ec::handle_tss() — used for vectors that have no real handler.
+    // In 64-bit mode there are no task gates; use an interrupt gate with IST=1
+    // so the CPU switches to a known-good stack (TSS.ist[0]) on entry.
+    extern char tss_handler;
+
     mword *ptr = handlers;
 
     for (unsigned vector = 0; vector < VEC_MAX; vector++, ptr++)
         if (*ptr)
-            idt[vector].set (SYS_INTR_GATE, *ptr & 3, SEL_KERN_CODE, *ptr & ~3);
+            idt[vector].set (SYS_INTR_GATE, *ptr & 3, SEL_KERN_CODE, *ptr & ~3ul);
         else
-            idt[vector].set (SYS_TASK_GATE, 0, SEL_TSS_DBF, 0);
+            idt[vector].set (SYS_INTR_GATE, 0, SEL_KERN_CODE,
+                             reinterpret_cast<mword>(&tss_handler), 1);
 }

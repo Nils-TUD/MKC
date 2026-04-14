@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -51,6 +52,26 @@ void init ()
     Ptab::insert_mapping (IOBMP_SADDR, iobm, 0x23);
     Ptab::insert_mapping (IOBMP_SADDR + PAGE_SIZE, iobm + PAGE_SIZE, 0x23);
 
+    // Ensure the PML4->PDPT->PD chain exists for the REMAP region.
+    // insert_mapping() will create the PT too, but remap() uses 2MB superpages at
+    // the PD level, so we just need the two upper levels.  We allocate a scratch
+    // page into the REMAP region to trigger the walk; remap() will overwrite the
+    // PD entry when first called.
+    {
+        mword* pml4 = static_cast<mword*>(Kalloc::phys2virt(Cpu::cr3()));
+        unsigned i4 = (REMAP_SADDR >> 39) & 0x1ff;
+        if ((pml4[i4] & 1) == 0) {
+            mword *p = static_cast<mword*>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
+            pml4[i4] = Kalloc::virt2phys(p) | 0x23;
+        }
+        mword* pdpt = static_cast<mword*>(Kalloc::phys2virt(pml4[i4] & ~PAGE_MASK));
+        unsigned i3 = (REMAP_SADDR >> 30) & 0x1ff;
+        if ((pdpt[i3] & 1) == 0) {
+            mword *p = static_cast<mword*>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
+            pdpt[i3] = Kalloc::virt2phys(p) | 0x23;
+        }
+    }
+
     for (void (**func)() = &CTORS_G; func != &CTORS_L; (*--func)()) ;
 
     Gdt::build();
@@ -69,19 +90,23 @@ void init ()
     Io::out<uint8> (0x21, 0x1);
     Io::out<uint8> (0x21, 0xff);
 
-    // setup sysenter
-    Msr::write<mword>(Msr::IA32_SYSENTER_CS,  SEL_KERN_CODE);
-    Msr::write<mword>(Msr::IA32_SYSENTER_ESP, reinterpret_cast<mword>(&Tss::run.sp0));
-    Msr::write<mword>(Msr::IA32_SYSENTER_EIP, reinterpret_cast<mword>(&entry_sysenter));
+    // setup syscall/sysret
+    // STAR[47:32] = SEL_KERN_CODE  -> SYSCALL loads CS=0x08, SS=0x10
+    // STAR[63:48] = SEL_KERN_DATA  -> SYSRET  loads SS=0x18|3=USER_DATA, CS=0x20|3=USER_CODE
+    Msr::write<mword>(Msr::IA32_STAR,
+                      (static_cast<mword>(SEL_KERN_DATA) << 48) |
+                      (static_cast<mword>(SEL_KERN_CODE) << 32));
+    Msr::write<mword>(Msr::IA32_LSTAR, reinterpret_cast<mword>(&entry_sysenter));
+    Msr::write<mword>(Msr::IA32_FMASK, 0x200);   /* mask IF on SYSCALL entry */
 }
 
-extern "C" REGPARM (1) NORETURN
+extern "C" NORETURN
 void bootstrap (mword addr)
 {
-    // unmap everything below 3G : 0 - LOAD_E
-    mword* pdir = static_cast<mword*>(Kalloc::phys2virt(Cpu::cr3()));
-    mword e = reinterpret_cast<mword>(&LOAD_E) >> 22;
-    for (mword a = 0; a <= e; pdir[a++] = 0) ;
+    // Unmap the low identity mapping created by start.S.
+    // The entire identity map lives under PML4[0] (covers 0–512 GB).
+    mword* pml4 = static_cast<mword*>(Kalloc::phys2virt(Cpu::cr3()));
+    pml4[0] = 0;
     Cpu::flush();
 
     Ec::current = new Ec (Ec::root_invoke, addr);
@@ -89,4 +114,3 @@ void bootstrap (mword addr)
 
     UNREACHED;
 }
-

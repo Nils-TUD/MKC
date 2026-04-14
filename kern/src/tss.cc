@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -20,28 +21,10 @@
 #include "memory.h"
 
 ALIGNED(8) Tss Tss::run;
-ALIGNED(8) Tss Tss::dbf;
 
 void Tss::build()
 {
-    // #NMI and #DF currently use CPU PT and CPU stack. If we use boot PT
-    // and boot stack instead we don't have the faulting TSS state mapped.
-    extern char tss_handler;
-
-    uint32 cr3;
-    asm volatile ("mov %%cr3, %0" : "=r"(cr3));
-
-    dbf.cr3     = cr3;
-    dbf.eip     = reinterpret_cast<mword>(&tss_handler);
-    dbf.esp     = KSTCK_ADDR + PAGE_SIZE;
-    dbf.eflags  = 2;    // reserved eflags bit, must be set
-    dbf.cs      = SEL_KERN_CODE;
-    dbf.ds      = SEL_KERN_DATA;
-    dbf.es      = SEL_KERN_DATA;
-    dbf.ss      = SEL_KERN_DATA;
-
-    run.ss0     = SEL_KERN_DATA;
-    run.sp0     = KSTCK_ADDR + PAGE_SIZE;
-
-    run.iobm    = static_cast<uint16>(IOBMP_SADDR - reinterpret_cast<mword>(&run));
+    run.sp0    = KSTCK_ADDR + PAGE_SIZE;
+    run.ist[0] = KSTCK_ADDR + PAGE_SIZE;   /* IST1: double-fault stack */
+    run.iobm   = static_cast<uint16>(IOBMP_SADDR - reinterpret_cast<mword>(&run));
 }

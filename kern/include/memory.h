@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -23,21 +24,14 @@
 #define PAGE_MASK       (PAGE_SIZE - 1)
 
 #define LOAD_ADDR       0x200000
-#define USER_ADDR       0xc0000000
 
-#define LINK_ADDR       0xc0000000
+#define USER_ADDR       0x00007ffffffff000
 
-// Global Range from 0xc0000000 to 0xcfc00000
-//#define CPUGL_ADDR      0xcc000000
-//#define HWDEV_EADDR     0xcfbff000
-//#define VGACN_ADDR      0xcfbff000
+#define LINK_ADDR       0xffffffff81000000
 
-// CPU Local Range from 0xcfc00000 to 0xd0000000
-//#define LOCAL_SADDR     0xcfc00000
-#define LAPIC_ADDR      0xcfffd000
-#define KSTCK_ADDR      0xcffff000
+#define KSTCK_ADDR      0xffffffffbfffd000
+#define LAPIC_ADDR      0xffffffffbfffe000
 
-// AS Local Range from 0xd0000000 to max
-#define IOBMP_SADDR     0xd0000000
+#define IOBMP_SADDR     0xffffffffc0000000
 #define IOBMP_EADDR     (IOBMP_SADDR + PAGE_SIZE * 2)
-#define REMAP_SADDR     0xdf000000
+#define REMAP_SADDR     0xffffffffdf000000

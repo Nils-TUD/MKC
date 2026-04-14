@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -25,13 +26,28 @@
 class Idt : public Descriptor
 {
     private:
+        /*
+         * On x86-64: sizeof(mword) = 8, so val[4] = 16 bytes per IDT entry.
+         * 64-bit interrupt gate layout:
+         *   val[0] bits 31:16 = segment selector
+         *   val[0] bits 15:0  = offset bits 15:0
+         *   val[1] bits 31:16 = offset bits 31:16
+         *   val[1] bit  15    = present
+         *   val[1] bits 14:13 = DPL
+         *   val[1] bits 11:8  = type (0xe = interrupt gate)
+         *   val[1] bits 2:0   = IST index (0 = no IST, 1-7 = use ist[n-1])
+         *   val[2] bits 31:0  = offset bits 63:32
+         *   val[3]            = 0 (reserved)
+         */
         uint32 val[sizeof (mword) / 2];
 
         ALWAYS_INLINE
-        inline void set (Type type, unsigned dpl, unsigned selector, mword offset)
+        inline void set (Type type, unsigned dpl, unsigned selector, mword offset, unsigned ist = 0)
         {
             val[0] = static_cast<uint32>(selector << 16 | (offset & 0xffff));
-            val[1] = static_cast<uint32>((offset & 0xffff0000) | 1u << 15 | dpl << 13 | type);
+            val[1] = static_cast<uint32>((offset & 0xffff0000) | 1u << 15 | dpl << 13 | type | ist);
+            val[2] = static_cast<uint32>(offset >> 32);
+            val[3] = 0;
         }
 
     public:

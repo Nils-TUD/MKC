@@ -49,8 +49,7 @@ PFLAGS		:= $(addprefix -D, $(DEFINES)) $(addprefix -I, $(INC_DIR))
 # Optimization options
 DFLAGS		:= -MP -MMD -pipe
 OFLAGS		:= -Os -g
-AFLAGS		:= -march=i686 -mpreferred-stack-boundary=2 -mregparm=3
-AFLAGS		+= -m32
+AFLAGS		:= -m64 -march=core2 -mpreferred-stack-boundary=4 -mcmodel=kernel -mno-red-zone -fno-PIC
 
 # Language options
 FFLAGS		:= -fdata-sections -ffunction-sections -freg-struct-return -freorder-blocks -funit-at-a-time
