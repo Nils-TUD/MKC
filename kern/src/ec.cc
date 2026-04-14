@@ -19,8 +19,6 @@
 
 #include "ec.h"
 #include "arch.h"
-#include "assert.h"
-#include "bits.h"
 #include "cpu.h"
 #include "ptab.h"
 
