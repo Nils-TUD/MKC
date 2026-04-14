@@ -18,6 +18,7 @@
  */
 
 #include "bits.h"
+#include "arch.h"
 #include "ec.h"
 #include "assert.h"
 #include "cpu.h"
@@ -51,38 +52,16 @@ Ec::Ec (mword rip, mword rsp)
 
 void Ec::ret_user_sysexit()
 {
-    // Restore all 16 GPRs from Sys_regs, then:
-    //   R11 (popped from Sys_regs.r11) holds the user RSP saved by LOAD_KSP in entry.S
-    //   Move it to RSP, set R11 = desired RFLAGS (IF=1), then sysretq.
-    // On sysretq: RIP <- RCX, RFLAGS <- R11, CS/SS loaded from STAR.
-    asm volatile (
-        "lea %0, %%rsp;"
-        "pop %%r15; pop %%r14; pop %%r13; pop %%r12;"
-        "pop %%r11; pop %%r10; pop %%r9;  pop %%r8;"
-        "pop %%rdi; pop %%rsi; pop %%rbp;"
-        "add $8, %%rsp;"        /* skip cr2 slot */
-        "pop %%rbx; pop %%rdx; pop %%rcx; pop %%rax;"
-        "mov %%r11, %%rsp;"     /* user RSP (saved in r11 by entry LOAD_KSP) */
-        "mov $0x200, %%r11;"    /* RFLAGS for sysretq: IF=1 */
-        "sysretq"
-        : : "m" (current->regs) : "memory");
+    asm volatile ("lea %0," EXPAND (PREG(sp); LOAD_GPR RET_USER_HYP)
+                  : : "m" (current->regs) : "memory");
 
     UNREACHED;
 }
 
 void Ec::ret_user_iret()
 {
-    // Restore all 16 GPRs, skip the 6 saved segment/error/vector fields, then iretq.
-    asm volatile (
-        "lea %0, %%rsp;"
-        "pop %%r15; pop %%r14; pop %%r13; pop %%r12;"
-        "pop %%r11; pop %%r10; pop %%r9;  pop %%r8;"
-        "pop %%rdi; pop %%rsi; pop %%rbp;"
-        "add $8, %%rsp;"        /* skip cr2 slot */
-        "pop %%rbx; pop %%rdx; pop %%rcx; pop %%rax;"
-        "add $0x30, %%rsp;"     /* skip gs,fs,es,ds,err,vec (6*8 bytes) */
-        "iretq"
-        : : "m" (current->regs) : "memory");
+    asm volatile ("lea %0," EXPAND (PREG(sp); LOAD_GPR LOAD_SEG RET_USER_EXC)
+                  : : "m" (current->regs) : "memory");
 
     UNREACHED;
 }

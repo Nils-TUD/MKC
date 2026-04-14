@@ -18,6 +18,7 @@
  */
 
 #include "memory.h"
+#include "arch.h"
 #include "selectors.h"
 #include "vectors.h"
 
@@ -41,56 +42,6 @@ handlers:
                         .data
                         .quad   0
                         .previous
-.endm
-
-/*
- * Save/restore all 16 GPRs.
- * Push order: rax first (highest address in frame), r15 last (lowest address).
- * This matches Sys_regs layout: r15 at offset 0x00, rax at offset 0x78.
- */
-.macro                  SAVE_GPR
-                        push    %rax
-                        push    %rcx
-                        push    %rdx
-                        push    %rbx
-                        push    %rsp
-                        push    %rbp
-                        push    %rsi
-                        push    %rdi
-                        push    %r8
-                        push    %r9
-                        push    %r10
-                        push    %r11
-                        push    %r12
-                        push    %r13
-                        push    %r14
-                        push    %r15
-.endm
-
-.macro                  LOAD_GPR
-                        pop     %r15
-                        pop     %r14
-                        pop     %r13
-                        pop     %r12
-                        pop     %r11
-                        pop     %r10
-                        pop     %r9
-                        pop     %r8
-                        pop     %rdi
-                        pop     %rsi
-                        pop     %rbp
-                        add     $8, %rsp        /* skip cr2 slot */
-                        pop     %rbx
-                        pop     %rdx
-                        pop     %rcx
-                        pop     %rax
-.endm
-
-/*
- * Reserve space for segment registers (gs, fs, es, ds) - 4 * 8 bytes
- */
-.macro                  SAVE_SEG
-                        sub     $0x20, %rsp
 .endm
 
 /*
@@ -127,15 +78,12 @@ INTRGATE                \DPL
 
 /*
  * Exception Entries
- *
- * OFS_CR2 = 0x58 (r15=0,r14=8,r13=10h,r12=18h,r11=20h,r10=28h,r9=30h,r8=38h,
- *                  rdi=40h,rsi=48h,rbp=50h,cr2=58h)
  */
 entry_exc:              push    $0
 entry_exc_error:        SAVE_STATE
                         mov     %cr2, %rax
-                        mov     %rax, 0x58(%rbx)        /* OFS_CR2 = 0x58 */
-                        mov     %rbx, %rdi              /* arg1 = Exc_regs* (SysV ABI) */
+                        mov     %rax, OFS_CR2(%rbx)
+                        mov     %rbx, %ARG_1
                         call    exc_handler
                         jmp     ret_from_interrupt
 
@@ -165,8 +113,6 @@ TASKGATE
 
 /*
  * GSI Entries
- *
- * OFS_VEC = 0xa8: 16*8 (GPRs) + 4*8 (segs) + 8 (err) = 0xa8
  */
 .set                    VEC, NUM_EXC
 .rept                   NUM_GSI
@@ -178,7 +124,7 @@ INTRGATE                0
 
 entry_gsi:              push    $0
                         SAVE_STATE
-                        mov     0xa8(%rbx), %rdi        /* OFS_VEC = 0xa8, arg via rdi */
+                        mov     OFS_VEC(%rbx), %ARG_1
                         call    gsi_vector
                         jmp     ret_from_interrupt
 
@@ -194,21 +140,19 @@ INTRGATE                0
 
 entry_lvt:              push    $0
                         SAVE_STATE
-                        mov     0xa8(%rbx), %rdi        /* OFS_VEC = 0xa8, arg via rdi */
+                        mov     OFS_VEC(%rbx), %ARG_1
                         call    lvt_vector
                         jmp     ret_from_interrupt
 
 
 /*
  * Interrupt Return
- *
- * OFS_CS = 0xb8: OFS_VEC + 8 (vec) + 8 (rip) = 0xa8 + 0x10 = 0xb8
  */
-ret_from_interrupt:     testb   $3, 0xb8(%rbx)          /* test CPL bits in saved CS */
+ret_from_interrupt:     testb   $3, OFS_CS(%rbx)
                         jnz     ret_user_iret
                         LOAD_GPR
-                        add     $0x30, %rsp             /* skip gs,fs,es,ds,err,vec (6*8=0x30) */
-                        iretq
+                        LOAD_SEG
+                        RET_USER_EXC
 
 /*
  * System-Call Entry (SYSCALL mechanism)
@@ -223,11 +167,9 @@ ret_from_interrupt:     testb   $3, 0xb8(%rbx)          /* test CPL bits in save
  */
 .align                  4, 0x90
 .globl                  entry_sysenter
-entry_sysenter:
-                        mov     %rsp, %r11              /* save user RSP in r11 */
-                        mov     tss_run+4, %rsp         /* load kernel RSP from TSS.sp0 */
-                        lea     -11*8(%rsp), %rsp       /* reserve space for seg+err+vec+iret */
-                        SAVE_GPR                        /* push all 16 GPRs */
+entry_sysenter:         LOAD_KSP
+                        lea     -11*SIZE(%rsp), %rsp
+                        SAVE_GPR
                         mov     $(KSTCK_ADDR + PAGE_SIZE), %rsp
-                        and     $0xf, %rdi              /* syscall number in low nibble of rdi */
+                        and     $0xf, %ARG_1
                         jmp     syscall_handler
