@@ -32,7 +32,7 @@ class Gdt : public Descriptor
          * Write a standard 8-byte GDT descriptor.
          * @param l   Long-mode bit (bit 21): set for 64-bit code segments
          */
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         inline void set32 (Type type, Granularity gran, Size size, bool l, unsigned dpl, mword base, mword limit)
         {
             val[0] = static_cast<uint32>(base << 16 | (limit & 0xffff));
@@ -45,7 +45,7 @@ class Gdt : public Descriptor
          * Write a 16-byte GDT descriptor (used for 64-bit TSS).
          * The upper 32 bits of the base address go into the next GDT slot.
          */
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         inline void set64 (Type type, Granularity gran, Size size, bool l, unsigned dpl, mword base, mword limit)
         {
             set32 (type, gran, size, l, dpl, base, limit);
@@ -58,13 +58,14 @@ class Gdt : public Descriptor
 
         static void build();
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void load()
         {
-            asm volatile ("lgdt %0" : : "m" (Pseudo_descriptor (sizeof (gdt) - 1, reinterpret_cast<mword>(gdt))));
+            Pseudo_descriptor pd (sizeof (gdt) - 1, reinterpret_cast<mword>(gdt));
+            asm volatile ("lgdt %0" : : "m" (pd));
         }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void unbusy_tss()
         {
             gdt[SEL_TSS_RUN >> 3].val[1] &= ~0x200;

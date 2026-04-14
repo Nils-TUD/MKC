@@ -27,13 +27,13 @@ class Lock_guard
         T &_lock;
 
     public:
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         inline Lock_guard (T &l) : _lock (l)
         {
             _lock.lock();
         }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         inline ~Lock_guard()
         {
             _lock.unlock();

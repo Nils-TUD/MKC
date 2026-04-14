@@ -31,18 +31,18 @@ class Ec
         void        (*cont)();
         Exc_regs    regs;
 
-        REGPARM (1)
+        [[gnu::regparm(1)]]
         static void handle_exc (Exc_regs *) asm ("exc_handler");
 
-        NORETURN
+        [[gnu::noreturn]]
         static void handle_tss() asm ("tss_handler");
 
         static bool handle_exc_ts (Exc_regs *);
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         inline Sys_regs *sys_regs() { return &regs; }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         inline Exc_regs *exc_regs() { return &regs; }
 
     public:
@@ -51,7 +51,7 @@ class Ec
         Ec (void (*)(), mword = 0);
         Ec (mword, mword);
 
-        ALWAYS_INLINE NORETURN
+        [[gnu::always_inline, noreturn]]
         inline void make_current()
         {
             current = this;
@@ -63,21 +63,21 @@ class Ec
                           : : "g" (KSTCK_ADDR + PAGE_SIZE), "rm" (cont) : "memory"); UNREACHED;
         }
 
-        HOT NORETURN
+        [[gnu::hot, noreturn]]
         static void ret_user_sysexit();
 
-        NORETURN
+        [[gnu::noreturn]]
         static void ret_user_iret() asm ("ret_user_iret");
 
-        NORETURN
+        [[noreturn]]
         static void root_invoke();
 
-        HOT NORETURN REGPARM (1)
+        [[gnu::hot, gnu::noreturn, gnu::regparm(1)]]
         static void syscall_handler (uint8) asm ("syscall_handler");
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void *operator new (size_t) { return Kalloc::allocator.alloc(sizeof (Ec)); }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void operator delete (void *) { /* nop */ }
 };

@@ -23,7 +23,7 @@
 #include "types.h"
 #include "util.h"
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 inline long int bit_scan_reverse (mword val)
 {
     if (EXPECT_FALSE (!val))
@@ -34,7 +34,7 @@ inline long int bit_scan_reverse (mword val)
     return val;
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 inline long int bit_scan_forward (mword val)
 {
     if (EXPECT_FALSE (!val))
@@ -45,7 +45,7 @@ inline long int bit_scan_forward (mword val)
     return val;
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 inline unsigned long max_order (mword base, size_t size)
 {
     long int o = bit_scan_reverse (size);
@@ -56,7 +56,7 @@ inline unsigned long max_order (mword base, size_t size)
     return o;
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 inline uint64 div64 (uint64 n, uint32 d, uint32 *r)
 {
     uint64 q = n / d;
@@ -64,14 +64,14 @@ inline uint64 div64 (uint64 n, uint32 d, uint32 *r)
     return q;
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline mword align_dn (mword val, mword align)
 {
     val &= ~(align - 1);                // Expect power-of-2
     return val;
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline mword align_up (mword val, mword align)
 {
     val += (align - 1);                 // Expect power-of-2

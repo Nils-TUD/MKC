@@ -32,28 +32,6 @@
         #define COMPILER_VERSION    (__GNUC__ * 100 + __GNUC_MINOR__ * 10)
     #endif
 
-    #if (COMPILER_VERSION < 430)
-        #define COLD
-        #define HOT
-    #else
-        #define COLD                __attribute__((cold))
-        #define HOT                 __attribute__((hot))
-    #endif
-
-        #define ALIGNED(X)          __attribute__((aligned(X)))
-        #define ALWAYS_INLINE       __attribute__((always_inline))
-        #define FORMAT(X,Y)         __attribute__((format (printf, (X),(Y))))
-        #define USER                __attribute__((section (".user")))
-        #define INIT                __attribute__((section (".init")))
-        #define INITDATA            __attribute__((section (".initdata")))
-        #define INIT_PRIORITY(X)    __attribute__((init_priority((X))))
-        #define NOINLINE            __attribute__((noinline))
-        #define NONNULL             __attribute__((nonnull))
-        #define NORETURN            __attribute__((noreturn))
-        #define REGPARM(X)
-        #define EXTERN_C            extern "C"
-        #define WARN_UNUSED_RESULT  __attribute__((warn_unused_result))
-
         #define EXPECT_FALSE(X)     __builtin_expect(!!(X), 0)
         #define EXPECT_TRUE(X)      __builtin_expect(!!(X), 1)
 

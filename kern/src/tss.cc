@@ -20,7 +20,7 @@
 #include "tss.h"
 #include "memory.h"
 
-ALIGNED(8) Tss Tss::run;
+[[gnu::aligned(8)]] Tss Tss::run;
 
 void Tss::build()
 {

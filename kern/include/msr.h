@@ -89,7 +89,7 @@ class Msr
         };
 
         template <typename T>
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline T read (Register msr)
         {
             mword h, l;
@@ -98,7 +98,7 @@ class Msr
         }
 
         template <typename T>
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void write (Register msr, T val)
         {
             asm volatile ("wrmsr" : : "a" (static_cast<mword>(val)), "d" (static_cast<mword>(static_cast<uint64>(val) >> 32)), "c" (msr));

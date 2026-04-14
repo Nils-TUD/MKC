@@ -55,71 +55,71 @@ class Lapic : public Apic
             LAPIC_IPI_SELF  = 0x3f,
         };
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline uint32 read (Register reg)
         {
             return *reinterpret_cast<uint32 volatile *>(LAPIC_ADDR + (reg << 4));
         }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void write (Register reg, uint32 val)
         {
             *reinterpret_cast<uint32 volatile *>(LAPIC_ADDR + (reg << 4)) = val;
         }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void set_lvt (Register reg, unsigned vector, Delivery_mode dlv, Mask msk = UNMASKED)
         {
             write (reg, msk | dlv | vector);
         }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void timer_handler();
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void error_handler();
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void perfm_handler();
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void therm_handler();
 
     public:
         static unsigned freq_tsc;
         static unsigned freq_bus;
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline unsigned id()
         {
             return read (LAPIC_IDR) >> 24 & 0xff;
         }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline unsigned version()
         {
             return read (LAPIC_LVR) & 0xff;
         }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline unsigned lvt_max()
         {
             return read (LAPIC_LVR) >> 16 & 0xff;
         }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void eoi()
         {
             write (LAPIC_EOI, 0);
         }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void set_timer (unsigned val)
         {
             write (LAPIC_TMR_ICR, val);
         }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline unsigned get_timer()
         {
             return read (LAPIC_TMR_CCR);
@@ -128,6 +128,6 @@ class Lapic : public Apic
         static void init();
         static void calibrate();
 
-        REGPARM (1)
+        [[gnu::regparm(1)]]
         static void lvt_vector (unsigned) asm ("lvt_vector");
 };

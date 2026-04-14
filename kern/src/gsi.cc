@@ -40,7 +40,7 @@ void Gsi::setup()
     }
 }
 
-NORETURN
+[[noreturn]]
 void Gsi::vector (unsigned vector)
 {
     unsigned gsi = vector - VEC_GSI;

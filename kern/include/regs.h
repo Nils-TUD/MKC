@@ -86,6 +86,6 @@ class Exc_regs : public Sys_regs
         };
 
     public:
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         inline bool user() const { return cs & 3; }
 };

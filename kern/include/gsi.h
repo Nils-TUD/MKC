@@ -32,9 +32,9 @@ class Gsi
         static Gsi      gsi_table[NUM_GSI];
         static unsigned irq_table[NUM_IRQ];
 
-        INIT
+        [[gnu::section(".init")]]
         static void setup();
 
-        REGPARM (1)
+        [[gnu::noreturn, gnu::regparm(1)]]
         static void vector (unsigned) asm ("gsi_vector");
 };

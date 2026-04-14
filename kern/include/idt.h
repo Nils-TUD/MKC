@@ -40,7 +40,7 @@ class Idt : public Descriptor
          */
         uint32 val[sizeof (mword) / 2];
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         inline void set (Type type, unsigned dpl, unsigned selector, mword offset, unsigned ist = 0)
         {
             val[0] = static_cast<uint32>(selector << 16 | (offset & 0xffff));
@@ -52,12 +52,13 @@ class Idt : public Descriptor
     public:
         static Idt idt[VEC_MAX];
 
-        INIT
+        [[gnu::section(".init")]]
         static void build();
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void load()
         {
-            asm volatile ("lidt %0" : : "m" (Pseudo_descriptor (sizeof (idt) - 1, reinterpret_cast<mword>(idt))));
+            Pseudo_descriptor pd (sizeof (idt) - 1, reinterpret_cast<mword>(idt));
+            asm volatile ("lidt %0" : : "m" (pd));
         }
 };

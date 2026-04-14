@@ -19,15 +19,16 @@
 #pragma once
 
 #include "compiler.h"
+#include "types.h"
 
 template <typename T>
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline void flush (T t)
 {
     asm volatile ("clflush %0" : : "m" (*t) : "memory");
 }
 
-ALWAYS_INLINE NONNULL
+[[gnu::always_inline, gnu::nonnull]]
 inline void *flush (void *d, size_t n)
 {
     for (char *p = static_cast<char *>(d); p < static_cast<char *>(d) + n; p += 32)
@@ -36,19 +37,19 @@ inline void *flush (void *d, size_t n)
     return d;
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline void wbinvd()
 {
     asm volatile ("wbinvd" : : : "memory");
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline void pause()
 {
     asm volatile ("pause" : : : "memory");
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline uint64 rdtsc()
 {
     mword h, l;
@@ -56,7 +57,7 @@ static inline uint64 rdtsc()
     return static_cast<uint64>(h) << 32 | l;
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline mword get_cr0()
 {
     mword cr0;
@@ -64,13 +65,13 @@ static inline mword get_cr0()
     return cr0;
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline void set_cr0 (mword cr0)
 {
     asm volatile ("mov %0, %%cr0" : : "r" (cr0));
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline mword get_cr2()
 {
     mword cr2;
@@ -78,13 +79,13 @@ static inline mword get_cr2()
     return cr2;
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline void set_cr2 (mword cr2)
 {
     asm volatile ("mov %0, %%cr2" : : "r" (cr2));
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline mword get_cr4()
 {
     mword cr4;
@@ -92,7 +93,7 @@ static inline mword get_cr4()
     return cr4;
 }
 
-ALWAYS_INLINE
+[[gnu::always_inline]]
 static inline void set_cr4 (mword cr4)
 {
     asm volatile ("mov %0, %%cr4" : : "r" (cr4));

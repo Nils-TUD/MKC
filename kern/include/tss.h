@@ -27,10 +27,10 @@
  * 64-bit TSS layout (Intel Vol. 3A §8.7)
  *
  * sp0/sp1/sp2 sit at non-8-byte-aligned offsets (0x4, 0xc, 0x14) because
- * the struct opens with a reserved 32-bit field.  We use __attribute__((packed))
+ * the struct opens with a reserved 32-bit field.  We use [[gnu::packed]]
  * on the uint64 fields to suppress GCC alignment padding.
  */
-class Tss
+class [[gnu::packed]] Tss
 {
     public:
         uint32  : 32;                           // 0x00 reserved
@@ -51,9 +51,9 @@ class Tss
 
         static void build();
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         static inline void load()
         {
             asm volatile ("ltr %w0" : : "rm" (SEL_TSS_RUN));
         }
-} __attribute__((packed));
+};

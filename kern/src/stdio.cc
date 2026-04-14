@@ -22,10 +22,10 @@
 #include "stdio.h"
 #include "cpu.h"
 
-INIT_PRIORITY (PRIO_CONSOLE)
+[[gnu::init_priority(PRIO_CONSOLE)]]
 Console_serial serial;
 
-INIT_PRIORITY (PRIO_CONSOLE)
+[[gnu::init_priority(PRIO_CONSOLE)]]
 Spinlock printf_lock;
 
 void panic (char const *format, ...)
@@ -49,4 +49,4 @@ void printf (char const *format, ...)
     va_end (args);
 }
 
-extern "C" NORETURN void __cxa_pure_virtual() { FAIL; }
+extern "C" [[noreturn]] void __cxa_pure_virtual() { FAIL; }

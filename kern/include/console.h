@@ -37,6 +37,6 @@ class Console
     public:
         Console() : initialized (false) {}
 
-        FORMAT (2,0)
+        [[gnu::format(printf, 2, 0)]]
         void vprintf (char const *format, va_list args);
 };

@@ -80,7 +80,7 @@ void init ()
     Msr::write<mword>(Msr::IA32_FMASK, 0x200);   /* mask IF on SYSCALL entry */
 }
 
-extern "C" NORETURN
+extern "C" [[noreturn]]
 void bootstrap (mword addr)
 {
     // Unmap the low identity mapping created by start.S.

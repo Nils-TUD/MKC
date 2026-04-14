@@ -21,10 +21,10 @@
 #include "compiler.h"
 #include "console_serial.h"
 
-FORMAT (1,2) NORETURN
+[[gnu::format(printf, 1, 2), noreturn]]
 void panic (char const *format, ...);
 
-FORMAT (1,2)
+[[gnu::format(printf, 1, 2)]]
 void printf (char const *format, ...);
 
 extern Console_serial serial;

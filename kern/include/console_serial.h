@@ -43,15 +43,15 @@ class Console_serial : public Console
 
         unsigned base;
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         inline unsigned in (Reg reg) { return Io::in<uint8>(base + reg); }
 
-        ALWAYS_INLINE
+        [[gnu::always_inline]]
         inline void out (Reg reg, unsigned val) { Io::out (base + reg, static_cast<uint8>(val)); }
 
         void putc (int c);
 
     public:
-        INIT
+        [[gnu::section(".init")]]
         void init();
 };
