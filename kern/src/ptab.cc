@@ -22,10 +22,9 @@
 #include "memory.h"
 #include "assert.h"
 
-// add 4k mappings only; 4-level page table walk (PML4 -> PDPT -> PD -> PT)
-void Ptab::insert_mapping (mword virt, mword phys, mword attr)
+mword *Ptab::get_pd (mword virt, mword attr)
 {
-    mword* pml4 = static_cast<mword*>(Kalloc::phys2virt(Cpu::cr3()));
+    mword *pml4 = static_cast<mword*>(Kalloc::phys2virt(Cpu::cr3()));
 
     // Level 4 -> Level 3 (PDPT)
     unsigned i4 = (virt >> 39) & 0x1ff;
@@ -33,7 +32,8 @@ void Ptab::insert_mapping (mword virt, mword phys, mword attr)
         mword *p = static_cast<mword*>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
         pml4[i4] = Kalloc::virt2phys(p) | 0x23 | (attr & 4);
     }
-    mword* pdpt = static_cast<mword*>(Kalloc::phys2virt(pml4[i4] & ~PAGE_MASK));
+
+    mword *pdpt = static_cast<mword*>(Kalloc::phys2virt(pml4[i4] & ~PAGE_MASK));
 
     // Level 3 -> Level 2 (PD)
     unsigned i3 = (virt >> 30) & 0x1ff;
@@ -41,7 +41,14 @@ void Ptab::insert_mapping (mword virt, mword phys, mword attr)
         mword *p = static_cast<mword*>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
         pdpt[i3] = Kalloc::virt2phys(p) | 0x23 | (attr & 4);
     }
-    mword* pd = static_cast<mword*>(Kalloc::phys2virt(pdpt[i3] & ~PAGE_MASK));
+
+    return static_cast<mword*>(Kalloc::phys2virt(pdpt[i3] & ~PAGE_MASK));
+}
+
+// add 4k mappings only; 4-level page table walk (PML4 -> PDPT -> PD -> PT)
+void Ptab::insert_mapping (mword virt, mword phys, mword attr)
+{
+    mword* pd = get_pd (virt, attr);
 
     // Level 2 -> Level 1 (PT)
     unsigned i2 = (virt >> 21) & 0x1ff;
@@ -59,27 +66,7 @@ void Ptab::insert_mapping (mword virt, mword phys, mword attr)
 
 void * Ptab::remap (mword addr)
 {
-    // Ensure the PML4->PDPT->PD chain exists for the REMAP region.
-    // insert_mapping() will create the PT too, but remap() uses 2MB superpages at
-    // the PD level, so we just need the two upper levels.  We allocate a scratch
-    // page into the REMAP region to trigger the walk; remap() will overwrite the
-    // PD entry when first called.
-    mword* pml4 = static_cast<mword*>(Kalloc::phys2virt(Cpu::cr3()));
-    unsigned i4 = (REMAP_SADDR >> 39) & 0x1ff;
-    if ((pml4[i4] & 1) == 0) {
-        mword *p = static_cast<mword*>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
-        pml4[i4] = Kalloc::virt2phys(p) | 0x23;
-    }
-
-    mword* pdpt = static_cast<mword*>(Kalloc::phys2virt(pml4[i4] & ~PAGE_MASK));
-    unsigned i3 = (REMAP_SADDR >> 30) & 0x1ff;
-    if ((pdpt[i3] & 1) == 0) {
-        mword *p = static_cast<mword*>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
-        pdpt[i3] = Kalloc::virt2phys(p) | 0x23;
-    }
-
-    // Walk PD for REMAP_SADDR
-    mword* pd   = static_cast<mword*>(Kalloc::phys2virt(pdpt[(REMAP_SADDR >> 30) & 0x1ff] & ~PAGE_MASK));
+    mword* pd = get_pd (REMAP_SADDR, 0x23);
 
     unsigned i2 = (REMAP_SADDR >> 21) & 0x1ff;
 
