@@ -34,9 +34,7 @@ __boot_header:          .long   0x1badb002          /* magic */
                         .long   0                   /* flags */
                         .long   -(0x1badb002 + 0)   /* checksum */
 
-/*
- * Boot GDT - 64-bit long-mode descriptors (L=1, D=0)
- */
+/* Boot GDT */
 .align                  8, 0x90
 __boot_gdt:             .word   0
                         .word   __boot_gdt__ - __boot_gdt - 1

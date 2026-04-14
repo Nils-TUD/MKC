@@ -67,7 +67,7 @@ void * Ptab::remap (mword addr)
 
     unsigned i2 = (REMAP_SADDR >> 21) & 0x1ff;
 
-    // Flush old 2MB mapping
+    // Flush the current 2MB mapping.
     pd[i2] = 0;
     Cpu::flush(REMAP_SADDR);
 

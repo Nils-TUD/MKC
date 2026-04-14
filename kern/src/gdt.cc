@@ -26,7 +26,7 @@ ALIGNED(8) Gdt Gdt::gdt[SEL_MAX >> 3];
 
 void Gdt::build()
 {
-    // 64-bit code/data: L=1, D=0 (BIT_16 clears the D bit; L bit set via l=true)
+    // Code/data segments: L=1, D=0.
     gdt[SEL_KERN_CODE >> 3].set32 (CODE_XRA, PAGES, BIT_16, true,  0, 0, ~0ul);
     gdt[SEL_KERN_DATA >> 3].set32 (DATA_RWA, PAGES, BIT_16, true,  0, 0, ~0ul);
 
@@ -34,7 +34,7 @@ void Gdt::build()
     gdt[SEL_USER_DATA >> 3].set32 (DATA_RWA, PAGES, BIT_16, true,  3, 0, ~0ul);
     gdt[SEL_USER_CODE >> 3].set32 (CODE_XRA, PAGES, BIT_16, true,  3, 0, ~0ul);
 
-    // TSS descriptor is 16 bytes in 64-bit mode (set64 writes two GDT slots)
+    // The TSS descriptor occupies two GDT slots.
     gdt[SEL_TSS_RUN >> 3].set64 (SYS_TSS, BYTES, BIT_16, false, 0,
                                   reinterpret_cast<mword>(&Tss::run),
                                   IOBMP_EADDR - reinterpret_cast<mword>(&Tss::run));

@@ -50,7 +50,7 @@
         #define NOINLINE            __attribute__((noinline))
         #define NONNULL             __attribute__((nonnull))
         #define NORETURN            __attribute__((noreturn))
-        #define REGPARM(X)          /* regparm not available on x86-64 */
+        #define REGPARM(X)
         #define EXTERN_C            extern "C"
         #define WARN_UNUSED_RESULT  __attribute__((warn_unused_result))
 

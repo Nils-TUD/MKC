@@ -25,9 +25,8 @@ ALIGNED(8) Idt Idt::idt[VEC_MAX];
 
 void Idt::build()
 {
-    // tss_handler is Ec::handle_tss() — used for vectors that have no real handler.
-    // In 64-bit mode there are no task gates; use an interrupt gate with IST=1
-    // so the CPU switches to a known-good stack (TSS.ist[0]) on entry.
+    // tss_handler is Ec::handle_tss() and uses IST=1 so the CPU switches to
+    // Tss::run.ist[0] on entry.
     extern char tss_handler;
 
     mword *ptr = handlers;

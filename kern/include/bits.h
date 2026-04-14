@@ -56,11 +56,6 @@ inline unsigned long max_order (mword base, size_t size)
     return o;
 }
 
-/*
- * 64-bit division: on x86-64 the compiler can use native 64-bit divide.
- * The old x86-32 version used two divl instructions with "=A" (EDX:EAX),
- * which is invalid on x86-64 where "A" means only RAX.
- */
 ALWAYS_INLINE
 inline uint64 div64 (uint64 n, uint32 d, uint32 *r)
 {

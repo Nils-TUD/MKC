@@ -27,8 +27,7 @@ class Idt : public Descriptor
 {
     private:
         /*
-         * On x86-64: sizeof(mword) = 8, so val[4] = 16 bytes per IDT entry.
-         * 64-bit interrupt gate layout:
+         * Interrupt gate layout:
          *   val[0] bits 31:16 = segment selector
          *   val[0] bits 15:0  = offset bits 15:0
          *   val[1] bits 31:16 = offset bits 31:16

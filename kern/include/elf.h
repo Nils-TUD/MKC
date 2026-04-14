@@ -34,11 +34,6 @@ class Eh
         uint16          eh_size, ph_size, ph_count, sh_size, sh_count, strtab;
 };
 
-/*
- * ELF64 Program Header (field order differs from ELF32!)
- * ELF32 Ph: type, f_offs, v_addr, p_addr, f_size, m_size, flags, align
- * ELF64 Ph: type, flags,  f_offs, v_addr, p_addr, f_size, m_size, align
- */
 class Ph
 {
     public:
@@ -61,7 +56,7 @@ class Ph
         };
 
         uint32          type;
-        uint32          flags;      /* MOVED before f_offs in ELF64 */
+        uint32          flags;
         uint64          f_offs;
         uint64          v_addr;
         uint64          p_addr;

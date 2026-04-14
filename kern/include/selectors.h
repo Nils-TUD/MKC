@@ -22,11 +22,7 @@
 #define SEL_NULL_DESC   0x0
 #define SEL_KERN_CODE   0x8
 #define SEL_KERN_DATA   0x10
-/* USER_DATA before USER_CODE: required for SYSCALL/SYSRET compatibility.
- * SYSRET loads SS = STAR[63:48]+8, CS = STAR[63:48]+16.
- * With STAR[63:48] = SEL_KERN_DATA (0x10):
- *   SS = 0x10+8 = 0x18 | RPL=3 = SEL_USER_DATA
- *   CS = 0x10+16 = 0x20 | RPL=3 = SEL_USER_CODE */
+/* SYSRET derives the user selectors from IA32_STAR. */
 #define SEL_USER_DATA   0x1b
 #define SEL_USER_CODE   0x23
 #define SEL_TSS_RUN     0x28
