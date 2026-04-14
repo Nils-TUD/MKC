@@ -22,29 +22,23 @@
 #include "types.h"
 
 extern "C" [[gnu::always_inline]] [[gnu::nonnull]]
-inline void *memcpy (void *d, void const *s, size_t n)
+inline void *memcpy(void *d, void const *s, size_t n)
 {
     mword dummy;
-    asm volatile ("rep; movsb"
-                  : "=D" (dummy), "+S" (s), "+c" (n)
-                  : "0" (d)
-                  : "memory");
+    asm volatile("rep; movsb" : "=D"(dummy), "+S"(s), "+c"(n) : "0"(d) : "memory");
     return d;
 }
 
 extern "C" [[gnu::always_inline]] [[gnu::nonnull]]
-inline void *memset (void *d, int c, size_t n)
+inline void *memset(void *d, int c, size_t n)
 {
     mword dummy;
-    asm volatile ("rep; stosb"
-                  : "=D" (dummy), "+c" (n)
-                  : "0" (d), "a" (c)
-                  : "memory");
+    asm volatile("rep; stosb" : "=D"(dummy), "+c"(n) : "0"(d), "a"(c) : "memory");
     return d;
 }
 
 extern "C" [[gnu::always_inline]] [[gnu::nonnull]]
-inline int strcmp (char const *s1, char const *s2)
+inline int strcmp(char const *s1, char const *s2)
 {
     while (*s1 && *s1 == *s2)
         s1++, s2++;

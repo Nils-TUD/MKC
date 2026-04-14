@@ -20,8 +20,8 @@
 
 #include "config.h"
 
-#define VEC_GSI         (NUM_EXC)
-#define VEC_LVT         (VEC_GSI + NUM_GSI)
-#define VEC_MAX         (VEC_LVT + NUM_LVT)
+#define VEC_GSI (NUM_EXC)
+#define VEC_LVT (VEC_GSI + NUM_GSI)
+#define VEC_MAX (VEC_LVT + NUM_LVT)
 
-#define VEC_LVT_TIMER   (VEC_LVT + 0)
+#define VEC_LVT_TIMER (VEC_LVT + 0)

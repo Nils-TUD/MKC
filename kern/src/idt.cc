@@ -17,11 +17,12 @@
  * GNU General Public License version 2 for more details.
  */
 
-#include "extern.h"
 #include "idt.h"
+#include "extern.h"
 #include "selectors.h"
 
-[[gnu::aligned(8)]] Idt Idt::idt[VEC_MAX];
+[[gnu::aligned(8)]]
+Idt Idt::idt[VEC_MAX];
 
 void Idt::build()
 {
@@ -31,10 +32,15 @@ void Idt::build()
 
     mword *ptr = handlers;
 
-    for (unsigned vector = 0; vector < VEC_MAX; vector++, ptr++)
+    for (unsigned vector = 0; vector < VEC_MAX; vector++, ptr++) {
         if (*ptr)
-            idt[vector].set (SYS_INTR_GATE, *ptr & 3, SEL_KERN_CODE, *ptr & ~3ul);
-        else
-            idt[vector].set (SYS_INTR_GATE, 0, SEL_KERN_CODE,
-                             reinterpret_cast<mword>(&tss_handler), 1);
+            idt[vector].set(SYS_INTR_GATE, *ptr & 3, SEL_KERN_CODE, *ptr & ~3ul);
+        else {
+            idt[vector].set(SYS_INTR_GATE,
+                            0,
+                            SEL_KERN_CODE,
+                            reinterpret_cast<mword>(&tss_handler),
+                            1);
+        }
+    }
 }

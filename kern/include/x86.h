@@ -23,16 +23,16 @@
 
 template <typename T>
 [[gnu::always_inline]]
-static inline void flush (T t)
+static inline void flush(T t)
 {
-    asm volatile ("clflush %0" : : "m" (*t) : "memory");
+    asm volatile("clflush %0" : : "m"(*t) : "memory");
 }
 
 [[gnu::always_inline, gnu::nonnull]]
-inline void *flush (void *d, size_t n)
+inline void *flush(void *d, size_t n)
 {
     for (char *p = static_cast<char *>(d); p < static_cast<char *>(d) + n; p += 32)
-        flush (p);
+        flush(p);
 
     return d;
 }
@@ -40,20 +40,20 @@ inline void *flush (void *d, size_t n)
 [[gnu::always_inline]]
 static inline void wbinvd()
 {
-    asm volatile ("wbinvd" : : : "memory");
+    asm volatile("wbinvd" : : : "memory");
 }
 
 [[gnu::always_inline]]
 static inline void pause()
 {
-    asm volatile ("pause" : : : "memory");
+    asm volatile("pause" : : : "memory");
 }
 
 [[gnu::always_inline]]
 static inline uint64 rdtsc()
 {
     mword h, l;
-    asm volatile ("rdtsc" : "=a" (l), "=d" (h));
+    asm volatile("rdtsc" : "=a"(l), "=d"(h));
     return static_cast<uint64>(h) << 32 | l;
 }
 
@@ -61,40 +61,40 @@ static inline uint64 rdtsc()
 static inline mword get_cr0()
 {
     mword cr0;
-    asm volatile ("mov %%cr0, %0" : "=r" (cr0));
+    asm volatile("mov %%cr0, %0" : "=r"(cr0));
     return cr0;
 }
 
 [[gnu::always_inline]]
-static inline void set_cr0 (mword cr0)
+static inline void set_cr0(mword cr0)
 {
-    asm volatile ("mov %0, %%cr0" : : "r" (cr0));
+    asm volatile("mov %0, %%cr0" : : "r"(cr0));
 }
 
 [[gnu::always_inline]]
 static inline mword get_cr2()
 {
     mword cr2;
-    asm volatile ("mov %%cr2, %0" : "=r" (cr2));
+    asm volatile("mov %%cr2, %0" : "=r"(cr2));
     return cr2;
 }
 
 [[gnu::always_inline]]
-static inline void set_cr2 (mword cr2)
+static inline void set_cr2(mword cr2)
 {
-    asm volatile ("mov %0, %%cr2" : : "r" (cr2));
+    asm volatile("mov %0, %%cr2" : : "r"(cr2));
 }
 
 [[gnu::always_inline]]
 static inline mword get_cr4()
 {
     mword cr4;
-    asm volatile ("mov %%cr4, %0" : "=r" (cr4));
+    asm volatile("mov %%cr4, %0" : "=r"(cr4));
     return cr4;
 }
 
 [[gnu::always_inline]]
-static inline void set_cr4 (mword cr4)
+static inline void set_cr4(mword cr4)
 {
-    asm volatile ("mov %0, %%cr4" : : "r" (cr4));
+    asm volatile("mov %0, %%cr4" : : "r"(cr4));
 }

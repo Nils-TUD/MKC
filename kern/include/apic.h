@@ -35,7 +35,7 @@ class Apic
 
         enum Mask
         {
-            UNMASKED        = 0U << 16,
-            MASKED          = 1U << 16      // 0x10000
+            UNMASKED = 0U << 16,
+            MASKED   = 1U << 16 // 0x10000
         };
 };

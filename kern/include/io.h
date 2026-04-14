@@ -25,17 +25,17 @@ class Io
     public:
         template <typename T>
         [[gnu::always_inline]]
-        static inline unsigned in (unsigned port)
+        static inline unsigned in(unsigned port)
         {
             T val;
-            asm volatile ("in %w1, %0" : "=a" (val) : "Nd" (port));
+            asm volatile("in %w1, %0" : "=a"(val) : "Nd"(port));
             return val;
         }
 
         template <typename T>
         [[gnu::always_inline]]
-        static inline void out (unsigned port, T val)
+        static inline void out(unsigned port, T val)
         {
-            asm volatile ("out %0, %w1" : : "a" (val), "Nd" (port));
+            asm volatile("out %0, %w1" : : "a"(val), "Nd"(port));
         }
 };

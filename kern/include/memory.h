@@ -19,19 +19,19 @@
 
 #pragma once
 
-#define PAGE_BITS       12
-#define PAGE_SIZE       (1 << PAGE_BITS)
-#define PAGE_MASK       (PAGE_SIZE - 1)
+#define PAGE_BITS 12
+#define PAGE_SIZE (1 << PAGE_BITS)
+#define PAGE_MASK (PAGE_SIZE - 1)
 
-#define LOAD_ADDR       0x200000
+#define LOAD_ADDR 0x200000
 
-#define USER_ADDR       0x00007ffffffff000
+#define USER_ADDR 0x00007ffffffff000
 
-#define LINK_ADDR       0xffffffff81000000
+#define LINK_ADDR 0xffffffff81000000
 
-#define KSTCK_ADDR      0xffffffffbfffd000
-#define LAPIC_ADDR      0xffffffffbfffe000
+#define KSTCK_ADDR 0xffffffffbfffd000
+#define LAPIC_ADDR 0xffffffffbfffe000
 
-#define IOBMP_SADDR     0xffffffffc0000000
-#define IOBMP_EADDR     (IOBMP_SADDR + PAGE_SIZE * 2)
-#define REMAP_SADDR     0xffffffffdf000000
+#define IOBMP_SADDR 0xffffffffc0000000
+#define IOBMP_EADDR (IOBMP_SADDR + PAGE_SIZE * 2)
+#define REMAP_SADDR 0xffffffffdf000000

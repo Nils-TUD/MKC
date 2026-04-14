@@ -22,20 +22,25 @@
 #include "tss.h"
 
 // 2 kernel + 2 user segment descriptors should be within same cache line
-[[gnu::aligned(8)]] Gdt Gdt::gdt[SEL_MAX >> 3];
+[[gnu::aligned(8)]]
+Gdt Gdt::gdt[SEL_MAX >> 3];
 
 void Gdt::build()
 {
     // Code/data segments: L=1, D=0.
-    gdt[SEL_KERN_CODE >> 3].set32 (CODE_XRA, PAGES, BIT_16, true,  0, 0, ~0ul);
-    gdt[SEL_KERN_DATA >> 3].set32 (DATA_RWA, PAGES, BIT_16, true,  0, 0, ~0ul);
+    gdt[SEL_KERN_CODE >> 3].set32(CODE_XRA, PAGES, BIT_16, true, 0, 0, ~0ul);
+    gdt[SEL_KERN_DATA >> 3].set32(DATA_RWA, PAGES, BIT_16, true, 0, 0, ~0ul);
 
     // USER_DATA before USER_CODE — required for SYSCALL/SYSRET selector layout
-    gdt[SEL_USER_DATA >> 3].set32 (DATA_RWA, PAGES, BIT_16, true,  3, 0, ~0ul);
-    gdt[SEL_USER_CODE >> 3].set32 (CODE_XRA, PAGES, BIT_16, true,  3, 0, ~0ul);
+    gdt[SEL_USER_DATA >> 3].set32(DATA_RWA, PAGES, BIT_16, true, 3, 0, ~0ul);
+    gdt[SEL_USER_CODE >> 3].set32(CODE_XRA, PAGES, BIT_16, true, 3, 0, ~0ul);
 
     // The TSS descriptor occupies two GDT slots.
-    gdt[SEL_TSS_RUN >> 3].set64 (SYS_TSS, BYTES, BIT_16, false, 0,
-                                  reinterpret_cast<mword>(&Tss::run),
-                                  IOBMP_EADDR - reinterpret_cast<mword>(&Tss::run));
+    gdt[SEL_TSS_RUN >> 3].set64(SYS_TSS,
+                                BYTES,
+                                BIT_16,
+                                false,
+                                0,
+                                reinterpret_cast<mword>(&Tss::run),
+                                IOBMP_EADDR - reinterpret_cast<mword>(&Tss::run));
 }

@@ -22,9 +22,9 @@
 #include "console_serial.h"
 
 [[gnu::format(printf, 1, 2), noreturn]]
-void panic (char const *format, ...);
+void panic(char const *format, ...);
 
 [[gnu::format(printf, 1, 2)]]
-void printf (char const *format, ...);
+void printf(char const *format, ...);
 
 extern Console_serial serial;

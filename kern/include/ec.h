@@ -19,65 +19,79 @@
 #pragma once
 
 #include "compiler.h"
-#include "regs.h"
-#include "tss.h"
 #include "kalloc.h"
 #include "memory.h"
+#include "regs.h"
 #include "stdio.h"
+#include "tss.h"
 
 class Ec
 {
     private:
-        void        (*cont)();
-        Exc_regs    regs;
+        void     (*cont)();
+        Exc_regs regs;
 
         [[gnu::regparm(1)]]
-        static void handle_exc (Exc_regs *) asm ("exc_handler");
+        static void handle_exc(Exc_regs *) asm("exc_handler");
 
         [[gnu::noreturn]]
-        static void handle_tss() asm ("tss_handler");
+        static void handle_tss() asm("tss_handler");
 
-        static bool handle_exc_ts (Exc_regs *);
-
-        [[gnu::always_inline]]
-        inline Sys_regs *sys_regs() { return &regs; }
+        static bool handle_exc_ts(Exc_regs *);
 
         [[gnu::always_inline]]
-        inline Exc_regs *exc_regs() { return &regs; }
+        inline Sys_regs *sys_regs()
+        {
+            return &regs;
+        }
+
+        [[gnu::always_inline]]
+        inline Exc_regs *exc_regs()
+        {
+            return &regs;
+        }
 
     public:
-        static Ec * current;
+        static Ec *current;
 
-        Ec (void (*)(), mword = 0);
-        Ec (mword, mword);
+        Ec(void (*)(), mword = 0);
+        Ec(mword, mword);
 
         [[gnu::always_inline, noreturn]]
         inline void make_current()
         {
-            current = this;
+            current      = this;
 
             Tss::run.sp0 = reinterpret_cast<mword>(exc_regs() + 1);
 
-            asm volatile ("mov %0, %%rsp;"
-                          "jmp *%1"
-                          : : "g" (KSTCK_ADDR + PAGE_SIZE), "rm" (cont) : "memory"); UNREACHED;
+            asm volatile("mov %0, %%rsp;"
+                         "jmp *%1"
+                         :
+                         : "g"(KSTCK_ADDR + PAGE_SIZE), "rm"(cont)
+                         : "memory");
+            UNREACHED;
         }
 
         [[gnu::hot, noreturn]]
         static void ret_user_sysexit();
 
         [[gnu::noreturn]]
-        static void ret_user_iret() asm ("ret_user_iret");
+        static void ret_user_iret() asm("ret_user_iret");
 
         [[noreturn]]
         static void root_invoke();
 
         [[gnu::hot, gnu::noreturn, gnu::regparm(1)]]
-        static void syscall_handler (uint8) asm ("syscall_handler");
+        static void syscall_handler(uint8) asm("syscall_handler");
 
         [[gnu::always_inline]]
-        static inline void *operator new (size_t) { return Kalloc::allocator.alloc(sizeof (Ec)); }
+        static inline void *operator new(size_t)
+        {
+            return Kalloc::allocator.alloc(sizeof(Ec));
+        }
 
         [[gnu::always_inline]]
-        static inline void operator delete (void *) { /* nop */ }
+        static inline void operator delete(void *)
+        { /* nop */
+        }
 };

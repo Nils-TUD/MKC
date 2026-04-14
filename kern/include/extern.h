@@ -29,6 +29,6 @@ extern void (*CTORS_L)();
 extern void (*CTORS_G)();
 extern void (*CTORS_E)();
 
-extern char entry_sysenter;
+extern char  entry_sysenter;
 extern mword handlers[];
 extern mword hwdev_addr;

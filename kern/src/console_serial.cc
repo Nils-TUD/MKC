@@ -17,7 +17,7 @@
  */
 
 #include "console_serial.h"
-#include "x86.h"    // pause ()
+#include "x86.h" // pause ()
 
 void Console_serial::init()
 {
@@ -27,24 +27,24 @@ void Console_serial::init()
 
     base = __serial_base;
 
-    out (LCR, 0x80);
-    out (DLR_LO, 1);
-    out (DLR_HI, 0);
-    out (LCR, 3);
-    out (IER, 0);
-    out (FCR, 7);
-    out (MCR, 3);
+    out(LCR, 0x80);
+    out(DLR_LO, 1);
+    out(DLR_HI, 0);
+    out(LCR, 3);
+    out(IER, 0);
+    out(FCR, 7);
+    out(MCR, 3);
 
     initialized = true;
 }
 
-void Console_serial::putc (int c)
+void Console_serial::putc(int c)
 {
     if (c == '\n')
-        putc ('\r');
+        putc('\r');
 
-    while (EXPECT_FALSE (!(in (LSR) & 0x20)))
+    while (EXPECT_FALSE(!(in(LSR) & 0x20)))
         pause();
 
-    out (THR, c);
+    out(THR, c);
 }

@@ -24,56 +24,56 @@
 #include "util.h"
 
 [[gnu::always_inline]]
-inline long int bit_scan_reverse (mword val)
+inline long int bit_scan_reverse(mword val)
 {
-    if (EXPECT_FALSE (!val))
+    if (EXPECT_FALSE(!val))
         return -1;
 
-    asm volatile ("bsr %1, %0" : "=r" (val) : "rm" (val));
+    asm volatile("bsr %1, %0" : "=r"(val) : "rm"(val));
 
     return val;
 }
 
 [[gnu::always_inline]]
-inline long int bit_scan_forward (mword val)
+inline long int bit_scan_forward(mword val)
 {
-    if (EXPECT_FALSE (!val))
+    if (EXPECT_FALSE(!val))
         return -1;
 
-    asm volatile ("bsf %1, %0" : "=r" (val) : "rm" (val));
+    asm volatile("bsf %1, %0" : "=r"(val) : "rm"(val));
 
     return val;
 }
 
 [[gnu::always_inline]]
-inline unsigned long max_order (mword base, size_t size)
+inline unsigned long max_order(mword base, size_t size)
 {
-    long int o = bit_scan_reverse (size);
+    long int o = bit_scan_reverse(size);
 
     if (base)
-        o = min (bit_scan_forward (base), o);
+        o = min(bit_scan_forward(base), o);
 
     return o;
 }
 
 [[gnu::always_inline]]
-inline uint64 div64 (uint64 n, uint32 d, uint32 *r)
+inline uint64 div64(uint64 n, uint32 d, uint32 *r)
 {
     uint64 q = n / d;
-    *r = static_cast<uint32>(n % d);
+    *r       = static_cast<uint32>(n % d);
     return q;
 }
 
 [[gnu::always_inline]]
-static inline mword align_dn (mword val, mword align)
+static inline mword align_dn(mword val, mword align)
 {
-    val &= ~(align - 1);                // Expect power-of-2
+    val &= ~(align - 1); // Expect power-of-2
     return val;
 }
 
 [[gnu::always_inline]]
-static inline mword align_up (mword val, mword align)
+static inline mword align_up(mword val, mword align)
 {
-    val += (align - 1);                 // Expect power-of-2
-    return align_dn (val, align);
+    val += (align - 1); // Expect power-of-2
+    return align_dn(val, align);
 }

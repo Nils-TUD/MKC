@@ -19,6 +19,8 @@
 
 #pragma once
 
+// clang-format off
+
 #ifdef __ASSEMBLER__
 #define PREG(X)         %REG(X)
 #define PSEG(X)         %X

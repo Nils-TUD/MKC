@@ -18,25 +18,25 @@
 
 #pragma once
 
-#include <stdarg.h>
 #include "compiler.h"
 #include "types.h"
+#include <stdarg.h>
 
 class Console
 {
     private:
-        virtual void putc (int c) = 0;
+        virtual void putc(int c) = 0;
 
-        void print_number (uint64 val, unsigned base, unsigned width, unsigned flags);
+        void print_number(uint64 val, unsigned base, unsigned width, unsigned flags);
 
-        inline void print_str (char const *str, unsigned width, unsigned precs);
+        inline void print_str(char const *str, unsigned width, unsigned precs);
 
     protected:
         bool initialized;
 
     public:
-        Console() : initialized (false) {}
+        Console() : initialized(false) {}
 
         [[gnu::format(printf, 2, 0)]]
-        void vprintf (char const *format, va_list args);
+        void vprintf(char const *format, va_list args);
 };

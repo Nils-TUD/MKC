@@ -33,27 +33,27 @@
 class [[gnu::packed]] Tss
 {
     public:
-        uint32  : 32;                           // 0x00 reserved
-        uint64  sp0;                            // 0x04 RSP for ring 0 (PACKED: misaligned)
-        uint64  sp1;                            // 0x0c RSP for ring 1
-        uint64  sp2;                            // 0x14 RSP for ring 2
-        uint64  : 64;                           // 0x1c reserved
-        uint64  ist[7];                         // 0x24 IST1-IST7 (ist[0]=IST1 used for #DF)
-        uint64  : 64;                           // 0x5c reserved
-        uint16  trap;                           // 0x64 debug trap flag
-        uint16  iobm;                           // 0x66 I/O bitmap base offset
+        uint32 : 32;   // 0x00 reserved
+        uint64 sp0;    // 0x04 RSP for ring 0 (PACKED: misaligned)
+        uint64 sp1;    // 0x0c RSP for ring 1
+        uint64 sp2;    // 0x14 RSP for ring 2
+        uint64 : 64;   // 0x1c reserved
+        uint64 ist[7]; // 0x24 IST1-IST7 (ist[0]=IST1 used for #DF)
+        uint64 : 64;   // 0x5c reserved
+        uint16 trap;   // 0x64 debug trap flag
+        uint16 iobm;   // 0x66 I/O bitmap base offset
 
         /*
          * 'asm("tss_run")' gives the static variable the symbol name "tss_run"
          * so that entry.S can load sp0 with: mov tss_run+4, %rsp
          */
-        static Tss run asm ("tss_run");
+        static Tss run asm("tss_run");
 
         static void build();
 
         [[gnu::always_inline]]
         static inline void load()
         {
-            asm volatile ("ltr %w0" : : "rm" (SEL_TSS_RUN));
+            asm volatile("ltr %w0" : : "rm"(SEL_TSS_RUN));
         }
 };

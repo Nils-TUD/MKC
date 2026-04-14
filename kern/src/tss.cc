@@ -20,11 +20,12 @@
 #include "tss.h"
 #include "memory.h"
 
-[[gnu::aligned(8)]] Tss Tss::run;
+[[gnu::aligned(8)]]
+Tss Tss::run;
 
 void Tss::build()
 {
     run.sp0    = KSTCK_ADDR + PAGE_SIZE;
-    run.ist[0] = KSTCK_ADDR + PAGE_SIZE;   /* IST1: double-fault stack */
+    run.ist[0] = KSTCK_ADDR + PAGE_SIZE; /* IST1: double-fault stack */
     run.iobm   = static_cast<uint16>(IOBMP_SADDR - reinterpret_cast<mword>(&run));
 }

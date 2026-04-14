@@ -38,10 +38,10 @@ class Idt : public Descriptor
          *   val[2] bits 31:0  = offset bits 63:32
          *   val[3]            = 0 (reserved)
          */
-        uint32 val[sizeof (mword) / 2];
+        uint32 val[sizeof(mword) / 2];
 
         [[gnu::always_inline]]
-        inline void set (Type type, unsigned dpl, unsigned selector, mword offset, unsigned ist = 0)
+        inline void set(Type type, unsigned dpl, unsigned selector, mword offset, unsigned ist = 0)
         {
             val[0] = static_cast<uint32>(selector << 16 | (offset & 0xffff));
             val[1] = static_cast<uint32>((offset & 0xffff0000) | 1u << 15 | dpl << 13 | type | ist);
@@ -58,7 +58,7 @@ class Idt : public Descriptor
         [[gnu::always_inline]]
         static inline void load()
         {
-            Pseudo_descriptor pd (sizeof (idt) - 1, reinterpret_cast<mword>(idt));
-            asm volatile ("lidt %0" : : "m" (pd));
+            Pseudo_descriptor pd(sizeof(idt) - 1, reinterpret_cast<mword>(idt));
+            asm volatile("lidt %0" : : "m"(pd));
         }
 };

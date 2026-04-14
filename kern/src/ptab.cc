@@ -18,55 +18,55 @@
  */
 
 #include "ptab.h"
+#include "assert.h"
 #include "kalloc.h"
 #include "memory.h"
-#include "assert.h"
 
-mword *Ptab::get_pd (mword virt, mword attr)
+mword *Ptab::get_pd(mword virt, mword attr)
 {
-    mword *pml4 = static_cast<mword*>(Kalloc::phys2virt(Cpu::cr3()));
+    mword *pml4 = static_cast<mword *>(Kalloc::phys2virt(Cpu::cr3()));
 
     // Level 4 -> Level 3 (PDPT)
     unsigned i4 = (virt >> 39) & 0x1ff;
     if ((pml4[i4] & 1) == 0) {
-        mword *p = static_cast<mword*>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
+        mword *p = static_cast<mword *>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
         pml4[i4] = Kalloc::virt2phys(p) | 0x23 | (attr & 4);
     }
 
-    mword *pdpt = static_cast<mword*>(Kalloc::phys2virt(pml4[i4] & ~PAGE_MASK));
+    mword *pdpt = static_cast<mword *>(Kalloc::phys2virt(pml4[i4] & ~PAGE_MASK));
 
     // Level 3 -> Level 2 (PD)
     unsigned i3 = (virt >> 30) & 0x1ff;
     if ((pdpt[i3] & 1) == 0) {
-        mword *p = static_cast<mword*>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
+        mword *p = static_cast<mword *>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
         pdpt[i3] = Kalloc::virt2phys(p) | 0x23 | (attr & 4);
     }
 
-    return static_cast<mword*>(Kalloc::phys2virt(pdpt[i3] & ~PAGE_MASK));
+    return static_cast<mword *>(Kalloc::phys2virt(pdpt[i3] & ~PAGE_MASK));
 }
 
 // add 4k mappings only; 4-level page table walk (PML4 -> PDPT -> PD -> PT)
-void Ptab::insert_mapping (mword virt, mword phys, mword attr)
+void Ptab::insert_mapping(mword virt, mword phys, mword attr)
 {
-    mword* pd = get_pd (virt, attr);
+    mword *pd = get_pd(virt, attr);
 
     // Level 2 -> Level 1 (PT)
     unsigned i2 = (virt >> 21) & 0x1ff;
     if ((pd[i2] & 1) == 0) {
-        mword *p = static_cast<mword*>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
-        pd[i2] = Kalloc::virt2phys(p) | 0x23 | (attr & 4);
+        mword *p = static_cast<mword *>(Kalloc::allocator.alloc_page(1, Kalloc::FILL_0));
+        pd[i2]   = Kalloc::virt2phys(p) | 0x23 | (attr & 4);
     }
-    mword* pt = static_cast<mword*>(Kalloc::phys2virt(pd[i2] & ~PAGE_MASK));
+    mword *pt = static_cast<mword *>(Kalloc::phys2virt(pd[i2] & ~PAGE_MASK));
 
     // Level 1: 4K page entry
     unsigned i1 = (virt >> PAGE_BITS) & 0x1ff;
-    assert ((phys & PAGE_MASK) == 0);
+    assert((phys & PAGE_MASK) == 0);
     pt[i1] = (phys & ~PAGE_MASK) | (attr & PAGE_MASK);
 }
 
-void * Ptab::remap (mword addr)
+void *Ptab::remap(mword addr)
 {
-    mword* pd = get_pd (REMAP_SADDR, 0x23);
+    mword *pd   = get_pd(REMAP_SADDR, 0x23);
 
     unsigned i2 = (REMAP_SADDR >> 21) & 0x1ff;
 

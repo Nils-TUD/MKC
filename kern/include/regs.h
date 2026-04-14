@@ -38,25 +38,25 @@ class Sys_regs
 {
     public:
         union {
-            struct {
-                mword   r15;
-                mword   r14;
-                mword   r13;
-                mword   r12;
-                mword   r11;
-                mword   r10;
-                mword   r9;
-                mword   r8;
-                mword   rdi;
-                mword   rsi;
-                mword   rbp;
-                mword   cr2;
-                mword   rbx;
-                mword   rdx;
-                mword   rcx;
-                mword   rax;
-            };
-            mword gpr[16];
+                struct {
+                        mword r15;
+                        mword r14;
+                        mword r13;
+                        mword r12;
+                        mword r11;
+                        mword r10;
+                        mword r9;
+                        mword r8;
+                        mword rdi;
+                        mword rsi;
+                        mword rbp;
+                        mword cr2;
+                        mword rbx;
+                        mword rdx;
+                        mword rcx;
+                        mword rax;
+                };
+                mword gpr[16];
         };
 };
 
@@ -70,22 +70,25 @@ class Exc_regs : public Sys_regs
 {
     public:
         union {
-            struct {
-                mword   gs;
-                mword   fs;
-                mword   es;
-                mword   ds;
-                mword   err;
-                mword   vec;
-                mword   rip;
-                mword   cs;
-                mword   rfl;
-                mword   rsp;
-                mword   ss;
-            };
+                struct {
+                        mword gs;
+                        mword fs;
+                        mword es;
+                        mword ds;
+                        mword err;
+                        mword vec;
+                        mword rip;
+                        mword cs;
+                        mword rfl;
+                        mword rsp;
+                        mword ss;
+                };
         };
 
     public:
         [[gnu::always_inline]]
-        inline bool user() const { return cs & 3; }
+        inline bool user() const
+        {
+            return cs & 3;
+        }
 };

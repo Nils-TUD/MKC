@@ -21,17 +21,17 @@
 #include "lapic.h"
 #include "msr.h"
 //#include "rcu.h"
-#include "vectors.h"
 #include "assert.h"
+#include "vectors.h"
 
-unsigned    Lapic::freq_tsc;
-unsigned    Lapic::freq_bus;
+unsigned Lapic::freq_tsc;
+unsigned Lapic::freq_bus;
 //uint8       Lapic::apic_id[NUM_CPU];
 
 void Lapic::init()
 {
-    assert (0);
-/*
+    assert(0);
+    /*
     Paddr apic_base = Msr::read<Paddr>(Msr::IA32_APIC_BASE);
 
     Pd::kern.Space_mem::delreg (apic_base & ~PAGE_MASK);
@@ -75,8 +75,8 @@ void Lapic::init()
 
 void Lapic::calibrate()
 {
-    assert (0);
-/*
+    assert(0);
+    /*
     uint32 v1 = read (LAPIC_TMR_CCR);
     uint32 t1 = static_cast<uint32>(rdtsc());
     Acpi::delay (250);
@@ -92,15 +92,16 @@ void Lapic::calibrate()
 
 void Lapic::timer_handler()
 {
-    panic ("Lapic::timer_handler\n");
+    panic("Lapic::timer_handler\n");
 }
 
-void Lapic::lvt_vector (unsigned vector)
+void Lapic::lvt_vector(unsigned vector)
 {
     switch (vector) {
-        case VEC_LVT_TIMER: timer_handler(); break;
+    case VEC_LVT_TIMER:
+        timer_handler();
+        break;
     }
 
     eoi();
-
 }

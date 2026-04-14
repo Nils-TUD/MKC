@@ -25,13 +25,13 @@
 class Eh
 {
     public:
-        uint32          ei_magic;
-        uint8           ei_class, ei_data, ei_version, ei_pad[9];
-        uint16          type, machine;
-        uint32          version;
-        mword           entry, ph_offset, sh_offset;
-        uint32          flags;
-        uint16          eh_size, ph_size, ph_count, sh_size, sh_count, strtab;
+        uint32 ei_magic;
+        uint8  ei_class, ei_data, ei_version, ei_pad[9];
+        uint16 type, machine;
+        uint32 version;
+        mword  entry, ph_offset, sh_offset;
+        uint32 flags;
+        uint16 eh_size, ph_size, ph_count, sh_size, sh_count, strtab;
 };
 
 class Ph
@@ -39,28 +39,28 @@ class Ph
     public:
         enum
         {
-            PT_NULL     = 0,
-            PT_LOAD     = 1,
-            PT_DYNAMIC  = 2,
-            PT_INTERP   = 3,
-            PT_NOTE     = 4,
-            PT_SHLIB    = 5,
-            PT_PHDR     = 6,
+            PT_NULL    = 0,
+            PT_LOAD    = 1,
+            PT_DYNAMIC = 2,
+            PT_INTERP  = 3,
+            PT_NOTE    = 4,
+            PT_SHLIB   = 5,
+            PT_PHDR    = 6,
         };
 
         enum
         {
-            PF_X        = 0x1,
-            PF_W        = 0x2,
-            PF_R        = 0x4,
+            PF_X = 0x1,
+            PF_W = 0x2,
+            PF_R = 0x4,
         };
 
-        uint32          type;
-        uint32          flags;
-        uint64          f_offs;
-        uint64          v_addr;
-        uint64          p_addr;
-        uint64          f_size;
-        uint64          m_size;
-        uint64          align;
+        uint32 type;
+        uint32 flags;
+        uint64 f_offs;
+        uint64 v_addr;
+        uint64 p_addr;
+        uint64 f_size;
+        uint64 m_size;
+        uint64 align;
 };

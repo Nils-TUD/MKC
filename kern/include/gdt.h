@@ -33,12 +33,13 @@ class Gdt : public Descriptor
          * @param l   Long-mode bit (bit 21): set for 64-bit code segments
          */
         [[gnu::always_inline]]
-        inline void set32 (Type type, Granularity gran, Size size, bool l, unsigned dpl, mword base, mword limit)
+        inline void
+        set32(Type type, Granularity gran, Size size, bool l, unsigned dpl, mword base, mword limit)
         {
             val[0] = static_cast<uint32>(base << 16 | (limit & 0xffff));
-            val[1] = static_cast<uint32>((base & 0xff000000) | gran | size | (limit & 0xf0000)
-                                         | (l ? 1u << 21 : 0)
-                                         | 1u << 15 | dpl << 13 | type | (base >> 16 & 0xff));
+            val[1] = static_cast<uint32>((base & 0xff000000) | gran | size | (limit & 0xf0000) |
+                                         (l ? 1u << 21 : 0) | 1u << 15 | dpl << 13 | type |
+                                         (base >> 16 & 0xff));
         }
 
         /*
@@ -46,9 +47,10 @@ class Gdt : public Descriptor
          * The upper 32 bits of the base address go into the next GDT slot.
          */
         [[gnu::always_inline]]
-        inline void set64 (Type type, Granularity gran, Size size, bool l, unsigned dpl, mword base, mword limit)
+        inline void
+        set64(Type type, Granularity gran, Size size, bool l, unsigned dpl, mword base, mword limit)
         {
-            set32 (type, gran, size, l, dpl, base, limit);
+            set32(type, gran, size, l, dpl, base, limit);
             (this + 1)->val[0] = static_cast<uint32>(base >> 32);
             (this + 1)->val[1] = 0;
         }
@@ -61,8 +63,8 @@ class Gdt : public Descriptor
         [[gnu::always_inline]]
         static inline void load()
         {
-            Pseudo_descriptor pd (sizeof (gdt) - 1, reinterpret_cast<mword>(gdt));
-            asm volatile ("lgdt %0" : : "m" (pd));
+            Pseudo_descriptor pd(sizeof(gdt) - 1, reinterpret_cast<mword>(gdt));
+            asm volatile("lgdt %0" : : "m"(pd));
         }
 
         [[gnu::always_inline]]

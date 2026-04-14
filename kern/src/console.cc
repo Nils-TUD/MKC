@@ -16,20 +16,20 @@
  * GNU General Public License version 2 for more details.
  */
 
-#include "bits.h"
 #include "console.h"
+#include "bits.h"
 
 enum
 {
-    MODE_FLAGS      = 0,
-    MODE_WIDTH      = 1,
-    MODE_PRECS      = 2,
-    FLAG_SIGNED     = 1u << 0,
-    FLAG_ALT_FORM   = 1u << 1,
-    FLAG_ZERO_PAD   = 1u << 2
+    MODE_FLAGS    = 0,
+    MODE_WIDTH    = 1,
+    MODE_PRECS    = 2,
+    FLAG_SIGNED   = 1u << 0,
+    FLAG_ALT_FORM = 1u << 1,
+    FLAG_ZERO_PAD = 1u << 2
 };
 
-void Console::print_number (uint64 val, unsigned base, unsigned width, unsigned flags)
+void Console::print_number(uint64 val, unsigned base, unsigned width, unsigned flags)
 {
     bool neg = false;
 
@@ -42,7 +42,7 @@ void Console::print_number (uint64 val, unsigned base, unsigned width, unsigned 
 
     do {
         uint32 r;
-        val = div64 (val, base, &r);
+        val    = div64(val, base, &r);
         *--ptr = r["0123456789abcdef"];
     } while (val);
 
@@ -50,51 +50,52 @@ void Console::print_number (uint64 val, unsigned base, unsigned width, unsigned 
         *--ptr = '-';
 
     unsigned long count = buffer + sizeof buffer - ptr;
-    unsigned long n = count + (flags & FLAG_ALT_FORM ? 2 : 0);
+    unsigned long n     = count + (flags & FLAG_ALT_FORM ? 2 : 0);
 
     if (flags & FLAG_ZERO_PAD) {
         if (flags & FLAG_ALT_FORM) {
-            putc ('0');
-            putc ('x');
+            putc('0');
+            putc('x');
         }
         while (n++ < width)
-            putc ('0');
-    } else {
+            putc('0');
+    }
+    else {
         while (n++ < width)
-            putc (' ');
+            putc(' ');
         if (flags & FLAG_ALT_FORM) {
-            putc ('0');
-            putc ('x');
+            putc('0');
+            putc('x');
         }
     }
 
     while (count--)
-        putc (*ptr++);
+        putc(*ptr++);
 }
 
-void Console::print_str (char const *s, unsigned width, unsigned precs)
+void Console::print_str(char const *s, unsigned width, unsigned precs)
 {
-    if (EXPECT_FALSE (!s))
+    if (EXPECT_FALSE(!s))
         return;
 
     unsigned n;
 
     for (n = 0; *s && precs--; n++)
-        putc (*s++);
+        putc(*s++);
 
     while (n++ < width)
-        putc (' ');
+        putc(' ');
 }
 
-void Console::vprintf (char const *format, va_list args)
+void Console::vprintf(char const *format, va_list args)
 {
-    if (EXPECT_FALSE (!initialized))
+    if (EXPECT_FALSE(!initialized))
         return;
 
     while (*format) {
 
-        if (EXPECT_TRUE (*format != '%')) {
-            putc (*format++);
+        if (EXPECT_TRUE(*format != '%')) {
+            putc(*format++);
             continue;
         }
 
@@ -104,71 +105,90 @@ void Console::vprintf (char const *format, va_list args)
 
             switch (*++format) {
 
-                case '0'...'9':
-                    switch (mode) {
-                        case MODE_FLAGS:
-                            if (*format == '0') {
-                                flags |= FLAG_ZERO_PAD;
-                                break;
-                            }
-                            mode = MODE_WIDTH;
-			    [[fallthrough]];
-                        case MODE_WIDTH: width = width * 10 + *format - '0'; break;
-                        case MODE_PRECS: precs = precs * 10 + *format - '0'; break;
+            case '0' ... '9':
+                switch (mode) {
+                case MODE_FLAGS:
+                    if (*format == '0') {
+                        flags |= FLAG_ZERO_PAD;
+                        break;
                     }
-                    continue;
-
-                case '.':
-                    mode = MODE_PRECS;
-                    continue;
-
-                case '#':
-                    if (mode == MODE_FLAGS)
-                        flags |= FLAG_ALT_FORM;
-                    continue;
-
-                case 'l':
-                    len++;
-                    continue;
-
-                case 'c':
-                    putc (va_arg (args, int));
+                    mode = MODE_WIDTH;
+                    [[fallthrough]];
+                case MODE_WIDTH:
+                    width = width * 10 + *format - '0';
                     break;
-
-                case 's':
-                    print_str (va_arg (args, char *), width, precs ? precs : ~0u);
+                case MODE_PRECS:
+                    precs = precs * 10 + *format - '0';
                     break;
+                }
+                continue;
 
-                case 'd':
-                    switch (len) {
-                        case 0:  u = va_arg (args, int);        break;
-                        case 1:  u = va_arg (args, long);       break;
-                        default: u = va_arg (args, long long);  break;
-                    }
-                    print_number (u, 10, width, flags | FLAG_SIGNED);
-                    break;
+            case '.':
+                mode = MODE_PRECS;
+                continue;
 
-                case 'u':
-                case 'x':
-                    switch (len) {
-                        case 0:  u = va_arg (args, unsigned int);        break;
-                        case 1:  u = va_arg (args, unsigned long);       break;
-                        default: u = va_arg (args, unsigned long long);  break;
-                    }
-                    print_number (u, *format == 'x' ? 16 : 10, width, flags);
-                    break;
+            case '#':
+                if (mode == MODE_FLAGS)
+                    flags |= FLAG_ALT_FORM;
+                continue;
 
-                case 'p':
-                    print_number (reinterpret_cast<mword>(va_arg (args, void *)), 16, width, FLAG_ALT_FORM);
-                    break;
+            case 'l':
+                len++;
+                continue;
 
+            case 'c':
+                putc(va_arg(args, int));
+                break;
+
+            case 's':
+                print_str(va_arg(args, char *), width, precs ? precs : ~0u);
+                break;
+
+            case 'd':
+                switch (len) {
                 case 0:
-                    format--;
-		    [[fallthrough]];
-
-                default:
-                    putc (*format);
+                    u = va_arg(args, int);
                     break;
+                case 1:
+                    u = va_arg(args, long);
+                    break;
+                default:
+                    u = va_arg(args, long long);
+                    break;
+                }
+                print_number(u, 10, width, flags | FLAG_SIGNED);
+                break;
+
+            case 'u':
+            case 'x':
+                switch (len) {
+                case 0:
+                    u = va_arg(args, unsigned int);
+                    break;
+                case 1:
+                    u = va_arg(args, unsigned long);
+                    break;
+                default:
+                    u = va_arg(args, unsigned long long);
+                    break;
+                }
+                print_number(u, *format == 'x' ? 16 : 10, width, flags);
+                break;
+
+            case 'p':
+                print_number(reinterpret_cast<mword>(va_arg(args, void *)),
+                             16,
+                             width,
+                             FLAG_ALT_FORM);
+                break;
+
+            case 0:
+                format--;
+                [[fallthrough]];
+
+            default:
+                putc(*format);
+                break;
             }
 
             format++;

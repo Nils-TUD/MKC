@@ -25,9 +25,8 @@
 class Gsi
 {
     public:
-        uint8           vec;
-        uint8           trg : 1,
-                        pol : 1;
+        uint8 vec;
+        uint8 trg : 1, pol : 1;
 
         static Gsi      gsi_table[NUM_GSI];
         static unsigned irq_table[NUM_IRQ];
@@ -36,5 +35,5 @@ class Gsi
         static void setup();
 
         [[gnu::noreturn, gnu::regparm(1)]]
-        static void vector (unsigned) asm ("gsi_vector");
+        static void vector(unsigned) asm("gsi_vector");
 };

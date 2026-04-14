@@ -18,10 +18,10 @@
 
 #pragma once
 
-#define AFTER(X)        (X + 1)
+#define AFTER(X) (X + 1)
 
-#define PRIO_GLOBAL     100
-#define PRIO_CONSOLE    AFTER (PRIO_GLOBAL)
-#define PRIO_BUDDY      AFTER (PRIO_CONSOLE)
-#define PRIO_SLAB       AFTER (PRIO_BUDDY)
-#define PRIO_LOCAL      0xfffe
+#define PRIO_GLOBAL  100
+#define PRIO_CONSOLE AFTER(PRIO_GLOBAL)
+#define PRIO_BUDDY   AFTER(PRIO_CONSOLE)
+#define PRIO_SLAB    AFTER(PRIO_BUDDY)
+#define PRIO_LOCAL   0xfffe

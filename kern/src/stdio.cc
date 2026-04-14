@@ -16,11 +16,11 @@
  * GNU General Public License version 2 for more details.
  */
 
+#include "stdio.h"
+#include "cpu.h"
 #include "initprio.h"
 #include "lock_guard.h"
 #include "spinlock.h"
-#include "stdio.h"
-#include "cpu.h"
 
 [[gnu::init_priority(PRIO_CONSOLE)]]
 Console_serial serial;
@@ -28,25 +28,29 @@ Console_serial serial;
 [[gnu::init_priority(PRIO_CONSOLE)]]
 Spinlock printf_lock;
 
-void panic (char const *format, ...)
+void panic(char const *format, ...)
 {
     va_list args;
-    va_start (args, format);
-    serial.vprintf (format, args);
-    va_end (args);
+    va_start(args, format);
+    serial.vprintf(format, args);
+    va_end(args);
 
     Cpu::shutdown();
 }
 
-void printf (char const *format, ...)
+void printf(char const *format, ...)
 {
-    Lock_guard <Spinlock> guard (printf_lock);
+    Lock_guard<Spinlock> guard(printf_lock);
 
     va_list args;
 
-    va_start (args, format);
-    serial.vprintf (format, args);
-    va_end (args);
+    va_start(args, format);
+    serial.vprintf(format, args);
+    va_end(args);
 }
 
-extern "C" [[noreturn]] void __cxa_pure_virtual() { FAIL; }
+extern "C" [[noreturn]]
+void __cxa_pure_virtual()
+{
+    FAIL;
+}

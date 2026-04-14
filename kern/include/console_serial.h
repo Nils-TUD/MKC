@@ -27,29 +27,35 @@ class Console_serial : public Console
     private:
         enum Reg
         {
-            RHR     = 0,    // Receive Holding Register     (read)
-            THR     = 0,    // Transmit Holding Register    (write)
-            IER     = 1,    // Interrupt Enable Register    (write)
-            ISR     = 2,    // Interrupt Status Register    (read)
-            FCR     = 2,    // FIFO Control Register        (write)
-            LCR     = 3,    // Line Control Register        (write)
-            MCR     = 4,    // Modem Control Register       (write)
-            LSR     = 5,    // Line Status Register         (read)
-            MSR     = 6,    // Modem Status Register        (read)
-            SPR     = 7,    // Scratchpad Register          (read/write)
-            DLR_LO  = 0,
-            DLR_HI  = 1,
+            RHR    = 0, // Receive Holding Register     (read)
+            THR    = 0, // Transmit Holding Register    (write)
+            IER    = 1, // Interrupt Enable Register    (write)
+            ISR    = 2, // Interrupt Status Register    (read)
+            FCR    = 2, // FIFO Control Register        (write)
+            LCR    = 3, // Line Control Register        (write)
+            MCR    = 4, // Modem Control Register       (write)
+            LSR    = 5, // Line Status Register         (read)
+            MSR    = 6, // Modem Status Register        (read)
+            SPR    = 7, // Scratchpad Register          (read/write)
+            DLR_LO = 0,
+            DLR_HI = 1,
         };
 
         unsigned base;
 
         [[gnu::always_inline]]
-        inline unsigned in (Reg reg) { return Io::in<uint8>(base + reg); }
+        inline unsigned in(Reg reg)
+        {
+            return Io::in<uint8>(base + reg);
+        }
 
         [[gnu::always_inline]]
-        inline void out (Reg reg, unsigned val) { Io::out (base + reg, static_cast<uint8>(val)); }
+        inline void out(Reg reg, unsigned val)
+        {
+            Io::out(base + reg, static_cast<uint8>(val));
+        }
 
-        void putc (int c);
+        void putc(int c);
 
     public:
         [[gnu::section(".init")]]

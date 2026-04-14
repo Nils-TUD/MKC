@@ -20,15 +20,15 @@
 
 #include "compiler.h"
 
-template <typename T>
-class Lock_guard
+template <typename T> class Lock_guard
 {
     private:
         T &_lock;
 
     public:
         [[gnu::always_inline]]
-        inline Lock_guard (T &l) : _lock (l)
+        inline Lock_guard(T &l)
+            : _lock(l)
         {
             _lock.lock();
         }

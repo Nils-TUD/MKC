@@ -20,6 +20,9 @@ d dbg : iso
 	gdb --tui kern/build/hypervisor --init-eval-command="target remote localhost:1234"
 	killall $(QEMU)
 
+format :
+	clang-format --sort-includes -i kern/include/*.h kern/src/*.cc
+
 cl clean :
 	make -C kern/build clean
 	rm -rf dist

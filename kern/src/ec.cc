@@ -17,51 +17,55 @@
  * GNU General Public License version 2 for more details.
  */
 
-#include "bits.h"
-#include "arch.h"
 #include "ec.h"
+#include "arch.h"
 #include "assert.h"
+#include "bits.h"
 #include "cpu.h"
 #include "ptab.h"
 
-Ec * Ec::current = 0;
+Ec *Ec::current = 0;
 
 // solely used for root_invoke()
-Ec::Ec (void (*f)(), mword mbi) : cont (f)
+Ec::Ec(void (*f)(), mword mbi) : cont(f)
 {
-    regs.rdi = mbi;             /* SysV ABI: first arg in rdi */
+    regs.rdi = mbi; /* SysV ABI: first arg in rdi */
     regs.cs  = SEL_USER_CODE;
     regs.ds  = SEL_USER_DATA;
     regs.es  = SEL_USER_DATA;
     regs.ss  = SEL_USER_DATA;
-    regs.rfl = 0x200;           // IF = 1
+    regs.rfl = 0x200; // IF = 1
 }
 
 // only used by syscall create thread (EC+SC)
-Ec::Ec (mword rip, mword rsp)
+Ec::Ec(mword rip, mword rsp)
 {
-    cont = ret_user_iret;
+    cont     = ret_user_iret;
     regs.cs  = SEL_USER_CODE;
     regs.ds  = SEL_USER_DATA;
     regs.es  = SEL_USER_DATA;
     regs.ss  = SEL_USER_DATA;
-    regs.rfl = 0x200;           // IF = 1
+    regs.rfl = 0x200; // IF = 1
     regs.rip = rip;
     regs.rsp = rsp;
 }
 
 void Ec::ret_user_sysexit()
 {
-    asm volatile ("lea %0," EXPAND (PREG(sp); LOAD_GPR RET_USER_HYP)
-                  : : "m" (current->regs) : "memory");
+    asm volatile("lea %0," EXPAND(PREG(sp); LOAD_GPR RET_USER_HYP)
+                 :
+                 : "m"(current->regs)
+                 : "memory");
 
     UNREACHED;
 }
 
 void Ec::ret_user_iret()
 {
-    asm volatile ("lea %0," EXPAND (PREG(sp); LOAD_GPR LOAD_SEG RET_USER_EXC)
-                  : : "m" (current->regs) : "memory");
+    asm volatile("lea %0," EXPAND(PREG(sp); LOAD_GPR LOAD_SEG RET_USER_EXC)
+                 :
+                 : "m"(current->regs)
+                 : "memory");
 
     UNREACHED;
 }
@@ -73,19 +77,19 @@ void Ec::root_invoke()
 
 void Ec::handle_tss()
 {
-    panic ("Task gate invoked\n");
+    panic("Task gate invoked\n");
 }
 
-void Ec::syscall_handler (uint8 n)
+void Ec::syscall_handler(uint8 n)
 {
-    printf ("syscall %d\n", n);
+    printf("syscall %d\n", n);
 
     ret_user_sysexit();
 
     UNREACHED;
 }
 
-bool Ec::handle_exc_ts (Exc_regs *r)
+bool Ec::handle_exc_ts(Exc_regs *r)
 {
     if (r->user())
         return false;
@@ -96,20 +100,29 @@ bool Ec::handle_exc_ts (Exc_regs *r)
     return true;
 }
 
-void Ec::handle_exc (Exc_regs *r)
+void Ec::handle_exc(Exc_regs *r)
 {
-    if (r->vec == Cpu::EXC_TS && handle_exc_ts (r))
+    if (r->vec == Cpu::EXC_TS && handle_exc_ts(r))
         return;
 
-    if (r->vec == Cpu::EXC_GP)
-        panic ("%s GP (RIP=%#lx CR2=%#lx)\n",
-               r->rip < LINK_ADDR ? "User" : "Kernel", r->rip, r->cr2);
-    if (r->vec == Cpu::EXC_PF)
-        panic ("%s PF (RIP=%#lx CR2=%#lx)\n",
-               r->rip < LINK_ADDR ? "User" : "Kernel", r->rip, r->cr2);
+    if (r->vec == Cpu::EXC_GP) {
+        panic("%s GP (RIP=%#lx CR2=%#lx)\n",
+              r->rip < LINK_ADDR ? "User" : "Kernel",
+              r->rip,
+              r->cr2);
+    }
+    if (r->vec == Cpu::EXC_PF) {
+        panic("%s PF (RIP=%#lx CR2=%#lx)\n",
+              r->rip < LINK_ADDR ? "User" : "Kernel",
+              r->rip,
+              r->cr2);
+    }
 
-    panic ("%s EXC %#lx (RIP=%#lx CR2=%#lx)\n",
-           r->rip < LINK_ADDR ? "User" : "Kernel", r->vec, r->rip, r->cr2);
+    panic("%s EXC %#lx (RIP=%#lx CR2=%#lx)\n",
+          r->rip < LINK_ADDR ? "User" : "Kernel",
+          r->vec,
+          r->rip,
+          r->cr2);
 
     UNREACHED;
 }

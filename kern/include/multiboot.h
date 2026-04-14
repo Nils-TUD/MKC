@@ -28,34 +28,34 @@ class Multiboot
     public:
         enum
         {
-            MAGIC           = 0x2badb002,
-            MEMORY          = 1ul << 0,
-            BOOT_DEVICE     = 1ul << 1,
-            CMDLINE         = 1ul << 2,
-            MODULES         = 1ul << 3,
-            SYMBOLS         = 1ul << 4 | 1ul << 5,
-            MEMORY_MAP      = 1ul << 6,
-            DRIVES          = 1ul << 7,
-            CONFIG_TABLE    = 1ul << 8,
-            LOADER_NAME     = 1ul << 9,
-            APM_TABLE       = 1ul << 10,
-            VBE_INFO        = 1ul << 11
+            MAGIC        = 0x2badb002,
+            MEMORY       = 1ul << 0,
+            BOOT_DEVICE  = 1ul << 1,
+            CMDLINE      = 1ul << 2,
+            MODULES      = 1ul << 3,
+            SYMBOLS      = 1ul << 4 | 1ul << 5,
+            MEMORY_MAP   = 1ul << 6,
+            DRIVES       = 1ul << 7,
+            CONFIG_TABLE = 1ul << 8,
+            LOADER_NAME  = 1ul << 9,
+            APM_TABLE    = 1ul << 10,
+            VBE_INFO     = 1ul << 11
         };
 
-        uint32  flags;              // 0
-        uint32  mem_lower;          // 4
-        uint32  mem_upper;          // 8
-        uint32  boot_device;        // 12
-        uint32  cmdline;            // 16
-        uint32  mods_count;         // 20
-        uint32  mods_addr;          // 24
-        uint32  syms[4];            // 28,32,36,40
-        uint32  mmap_len;           // 44
-        uint32  mmap_addr;          // 48
-        uint32  drives_length;      // 52
-        uint32  drives_addr;        // 56
-        uint32  config_table;       // 60
-        uint32  loader_name;        // 64
+        uint32 flags;         // 0
+        uint32 mem_lower;     // 4
+        uint32 mem_upper;     // 8
+        uint32 boot_device;   // 12
+        uint32 cmdline;       // 16
+        uint32 mods_count;    // 20
+        uint32 mods_addr;     // 24
+        uint32 syms[4];       // 28,32,36,40
+        uint32 mmap_len;      // 44
+        uint32 mmap_addr;     // 48
+        uint32 drives_length; // 52
+        uint32 drives_addr;   // 56
+        uint32 config_table;  // 60
+        uint32 loader_name;   // 64
 };
 
 /*
@@ -64,10 +64,10 @@ class Multiboot
 class Multiboot_module
 {
     public:
-        uint32  mod_start;
-        uint32  mod_end;
-        uint32  cmdline;
-        uint32  reserved;
+        uint32 mod_start;
+        uint32 mod_end;
+        uint32 cmdline;
+        uint32 reserved;
 };
 
 /*
@@ -77,9 +77,9 @@ class Multiboot_module
 class Multiboot_mmap
 {
     public:
-        uint32  size;
-        uint64  addr;
-        uint64  len;
-        uint32  type;
+        uint32 size;
+        uint64 addr;
+        uint64 len;
+        uint32 type;
 };
 #pragma pack()
