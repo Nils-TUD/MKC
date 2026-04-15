@@ -148,6 +148,10 @@ void Ec::syscall_handler(uint8 n)
         sys_dump();
         break;
 
+    case 1:
+        sys_create_ec();
+        break;
+
     default:
         printf("syscall %d - unknown\n", n);
         break;
@@ -164,6 +168,15 @@ void Ec::sys_dump()
            current,
            current->sys_regs()->rsi,
            current->sys_regs()->rdx);
+}
+
+void Ec::sys_create_ec()
+{
+    mword rip = current->sys_regs()->rsi;
+    mword rsp = current->sys_regs()->rdx;
+    Ec   *ec  = new Ec(rip, rsp);
+
+    printf("EC:%p SYS_CREATE_EC EC:%p (RIP=%#lx RSP=%#lx)\n", current, ec, rip, rsp);
 }
 
 bool Ec::handle_exc_ts(Exc_regs *r)
