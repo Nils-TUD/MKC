@@ -28,20 +28,11 @@
 .globl                  __start
 .globl                  __serial_base
 
-/*
- * Multiboot2 Header (CPU starts in 32-bit protected mode per spec)
- * QEMU -kernel supports Multiboot2 for 64-bit ELF.
- */
-.align                  8
-__boot_header:          .long   0xe85250d6          /* magic */
-                        .long   0                   /* arch: i386 protected mode */
-                        .long   __boot_header_end - __boot_header   /* header_length */
-                        .long   -(0xe85250d6 + 0 + (__boot_header_end - __boot_header))  /* checksum */
-                        /* end tag */
-                        .word   0                   /* type */
-                        .word   0                   /* flags */
-                        .long   8                   /* size */
-__boot_header_end:
+/* Multiboot1 header */
+.align                  4
+__boot_header:          .long   0x1badb002          /* magic */
+                        .long   0                   /* flags */
+                        .long   -(0x1badb002 + 0)   /* checksum */
 
 /*
  * Boot GDT - 64-bit long-mode descriptors (L=1, D=0)
@@ -151,8 +142,7 @@ __start_paged:
 
 .text
 
-1:                      mov     %rbx, %rdi              /* 1st arg (SysV ABI): MBI pointer */
-                        call    init
+1:                      call    init
                         mov     %rbx, %rdi              /* pass MBI to bootstrap() via rdi */
                         mov     $(KSTCK_ADDR + PAGE_SIZE), %rsp
                         jmp     bootstrap

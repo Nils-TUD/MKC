@@ -1,2 +1,3 @@
 kern/build/*.[do]
 kern/build/hypervisor
+dist/
