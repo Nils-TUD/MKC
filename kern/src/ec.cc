@@ -73,9 +73,13 @@ void Ec::root_invoke()
 
     printf("iret to user ...\n");
 
-    // TODO prepare stack and iret to user
+    mword stack[] = {USER_CODE, SEL_USER_CODE, 0x202, USER_CODE, SEL_USER_DATA};
 
-    FAIL;
+    asm volatile("mov %0, %%rsp   ;"
+                 "iretq           ;"
+                 :
+                 : "r"(stack)
+                 : "memory");
 
     UNREACHED;
 }
