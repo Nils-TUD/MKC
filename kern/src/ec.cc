@@ -20,6 +20,10 @@
 #include "ec.h"
 #include "arch.h"
 #include "cpu.h"
+#include "ptab.h"
+#include "multiboot.h"
+#include "elf.h"
+#include "bits.h"
 
 Ec *Ec::current = 0;
 
@@ -65,16 +69,53 @@ void Ec::ret_user_iret()
 
 void Ec::root_invoke()
 {
-    printf("root_invoke\n");
+    Multiboot *mbi = static_cast<Multiboot *>(Ptab::remap(current->regs.rdi));
 
-    // TODO
-    // - current->regs.rdi holds pointer to Multiboot info (see multiboot.h)
-    // - get mbi remapped, find single Multiboot_module
-    // - get module descriptor mapped, print physical addr and size, check
-    //   if its size is correct (should be equal to filesize of user.nova)
-    // - get module remapped (its an elf binary, see elf.h for details)
-    // - sanity check and decode elf binary
-    // - finally start user module via ret_user_iret()
+    if (!(mbi->flags & Multiboot::MODULES) || (mbi->mods_count != 1))
+        panic("exactly ONE multi boot module is required.\n");
+
+    Multiboot_module mod = *static_cast<Multiboot_module *>(Ptab::remap(mbi->mods_addr));
+
+    printf("load module from %x - %x (%u bytes) : ",
+           mod.mod_start,
+           mod.mod_end,
+           mod.mod_end - mod.mod_start);
+    char *cmd = static_cast<char *>(Ptab::remap(mod.cmdline));
+    printf("%s\n", cmd);
+
+    // remap elf header
+    Eh *e = static_cast<Eh *>(Ptab::remap(mod.mod_start));
+    if (e->ei_magic != 0x464c457f || e->ei_data != 1 || e->type != 2)
+        panic("No ELF\n");
+
+    unsigned count    = e->ph_count;
+    current->regs.rip = e->entry;
+
+    // remap program headers
+    Ph *p = static_cast<Ph *>(Ptab::remap(mod.mod_start + e->ph_offset));
+
+    for (; count--; p++) {
+        if (p->type == Ph::PT_LOAD) {
+            unsigned attr = p->flags & Ph::PF_W ? 7 : 5;
+
+            if (p->f_size != p->m_size || p->v_addr % PAGE_SIZE != p->f_offs % PAGE_SIZE)
+                panic("Bad ELF\n");
+
+            mword phys = align_dn(p->f_offs + mod.mod_start, PAGE_SIZE);
+            mword virt = align_dn(p->v_addr, PAGE_SIZE);
+            mword size = align_up(p->f_size, PAGE_SIZE);
+
+            while (size) {
+                Ptab::insert_mapping(virt, phys, attr);
+                virt += PAGE_SIZE;
+                phys += PAGE_SIZE;
+                size -= PAGE_SIZE;
+            }
+        }
+    }
+
+    printf("iret to user ...\n");
+    ret_user_iret();
 
     FAIL;
 }
