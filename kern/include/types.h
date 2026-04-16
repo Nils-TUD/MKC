@@ -20,10 +20,10 @@
 
 #include <stddef.h>
 
-typedef unsigned char      uint8;
-typedef unsigned short     uint16;
-typedef unsigned int       uint32;
-typedef unsigned long long uint64;
+using uint8  = unsigned char;
+using uint16 = unsigned short;
+using uint32 = unsigned int;
+using uint64 = unsigned long long;
 
-typedef unsigned long mword;
-typedef unsigned long Paddr;
+using mword  = unsigned long;
+using Paddr  = unsigned long;
