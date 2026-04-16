@@ -80,3 +80,7 @@ class Pseudo_descriptor
         }
 };
 #pragma pack()
+
+static_assert(sizeof(Pseudo_descriptor) == 10,
+              "Pseudo_descriptor must match lgdt/lidt operand size");
+static_assert(alignof(Pseudo_descriptor) == 1, "Pseudo_descriptor must stay byte-packed");

@@ -56,3 +56,5 @@ class [[gnu::packed]] Tss
             asm volatile("ltr %w0" : : "rm"(SEL_TSS_RUN));
         }
 };
+
+static_assert(sizeof(Tss) == 0x68, "TSS must be 104 bytes");

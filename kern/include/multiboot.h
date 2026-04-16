@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "types.h"
+
 /*
  * Multiboot Information Structure
  */
@@ -81,3 +83,7 @@ class Multiboot_mmap
         uint32 type;
 };
 #pragma pack()
+
+static_assert(sizeof(Multiboot) == 68, "Multiboot info structure size must match the spec");
+static_assert(sizeof(Multiboot_module) == 16, "Multiboot module size must match the spec");
+static_assert(sizeof(Multiboot_mmap) == 24, "Multiboot mmap entry size must match the spec");

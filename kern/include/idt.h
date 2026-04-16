@@ -61,3 +61,5 @@ class Idt : public Descriptor
             asm volatile("lidt %0" : : "m"(pd));
         }
 };
+
+static_assert(sizeof(Idt) == 16, "IDT entries must be 16 bytes in 64-bit mode");

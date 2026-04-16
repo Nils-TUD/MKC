@@ -72,3 +72,5 @@ class Gdt : public Descriptor
             gdt[SEL_TSS_RUN >> 3].val[1] &= ~0x200;
         }
 };
+
+static_assert(sizeof(Gdt) == 8, "GDT entries must be 8 bytes");

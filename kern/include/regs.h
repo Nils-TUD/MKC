@@ -90,3 +90,6 @@ class Exc_regs : public Sys_regs
             return cs & 3;
         }
 };
+
+static_assert(sizeof(Sys_regs) == 0x80, "Sys_regs must match SAVE_GPR layout");
+static_assert(sizeof(Exc_regs) == 0xd8, "Exc_regs must match exception frame layout");
