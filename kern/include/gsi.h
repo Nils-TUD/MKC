@@ -18,9 +18,8 @@
 
 #pragma once
 
-#include "assert.h"
-#include "compiler.h"
 #include "config.h"
+#include "types.h"
 
 class Gsi
 {

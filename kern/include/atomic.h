@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "compiler.h"
-
 class Atomic
 {
     public:

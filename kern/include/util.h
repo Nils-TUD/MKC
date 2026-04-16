@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "compiler.h"
-
 template <typename T>
 [[gnu::always_inline]]
 static inline T min(T v1, T v2)

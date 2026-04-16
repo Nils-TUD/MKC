@@ -21,6 +21,7 @@
 #include "initprio.h"
 #include "lock_guard.h"
 #include "spinlock.h"
+#include "compiler.h"
 
 [[gnu::init_priority(PRIO_CONSOLE)]]
 Console_serial serial;

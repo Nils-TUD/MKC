@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cpu.h"
 #include "types.h"
 
 class Ptab

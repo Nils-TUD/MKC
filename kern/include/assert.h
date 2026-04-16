@@ -18,9 +18,6 @@
 
 #pragma once
 
-#include "compiler.h"
-#include "stdio.h"
-
 #ifdef DEBUG
 #define assert(X)                                                                 \
     do {                                                                          \

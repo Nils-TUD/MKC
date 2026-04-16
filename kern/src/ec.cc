@@ -20,7 +20,6 @@
 #include "ec.h"
 #include "arch.h"
 #include "cpu.h"
-#include "ptab.h"
 
 Ec *Ec::current = 0;
 

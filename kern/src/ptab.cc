@@ -17,6 +17,7 @@
  * GNU General Public License version 2 for more details.
  */
 
+#include "cpu.h"
 #include "ptab.h"
 #include "assert.h"
 #include "kalloc.h"

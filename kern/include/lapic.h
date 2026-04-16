@@ -19,8 +19,6 @@
 #pragma once
 
 #include "apic.h"
-#include "compiler.h"
-//#include "config.h"
 #include "memory.h"
 #include "types.h"
 

@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "compiler.h"
 #include "descriptor.h"
 #include "selectors.h"
 

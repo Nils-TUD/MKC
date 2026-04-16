@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "compiler.h"
 #include "console_serial.h"
 
 [[gnu::format(printf, 1, 2), noreturn]]

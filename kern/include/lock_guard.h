@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "compiler.h"
-
 template <typename T> class Lock_guard
 {
     private:

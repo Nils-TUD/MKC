@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "compiler.h"
-
 class Io
 {
     public:

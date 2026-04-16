@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "compiler.h"
 #include "types.h"
 
 extern "C" [[gnu::always_inline]] [[gnu::nonnull]]

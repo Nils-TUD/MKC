@@ -16,12 +16,9 @@
  * GNU General Public License version 2 for more details.
  */
 
-//#include "acpi.h"
-//#include "ec.h"
 #include "lapic.h"
-#include "msr.h"
-//#include "rcu.h"
 #include "assert.h"
+#include "stdio.h"
 #include "vectors.h"
 
 unsigned Lapic::freq_tsc;

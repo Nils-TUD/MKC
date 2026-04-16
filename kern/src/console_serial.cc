@@ -16,6 +16,7 @@
  * GNU General Public License version 2 for more details.
  */
 
+#include "compiler.h"
 #include "console_serial.h"
 #include "x86.h" // pause ()
 

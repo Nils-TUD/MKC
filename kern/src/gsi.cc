@@ -17,7 +17,7 @@
  */
 
 #include "gsi.h"
-#include "lapic.h"
+#include "stdio.h"
 #include "vectors.h"
 
 Gsi      Gsi::gsi_table[NUM_GSI];
