@@ -32,7 +32,7 @@ class Cpu
             EXC_AC = 17
         };
 
-        [[gnu::always_inline]]
+        [[gnu::always_inline]] [[nodiscard]]
         static inline mword cr3()
         {
             mword cr3;

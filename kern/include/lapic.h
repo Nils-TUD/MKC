@@ -53,7 +53,7 @@ class Lapic : public Apic
             LAPIC_IPI_SELF  = 0x3f,
         };
 
-        [[gnu::always_inline]]
+        [[gnu::always_inline]] [[nodiscard]]
         static inline uint32 read(Register reg)
         {
             return *reinterpret_cast<uint32 volatile *>(LAPIC_ADDR + (reg << 4));
@@ -88,19 +88,19 @@ class Lapic : public Apic
         static unsigned freq_tsc;
         static unsigned freq_bus;
 
-        [[gnu::always_inline]]
+        [[gnu::always_inline]] [[nodiscard]]
         static inline unsigned id()
         {
             return read(LAPIC_IDR) >> 24 & 0xff;
         }
 
-        [[gnu::always_inline]]
+        [[gnu::always_inline]] [[nodiscard]]
         static inline unsigned version()
         {
             return read(LAPIC_LVR) & 0xff;
         }
 
-        [[gnu::always_inline]]
+        [[gnu::always_inline]] [[nodiscard]]
         static inline unsigned lvt_max()
         {
             return read(LAPIC_LVR) >> 16 & 0xff;
@@ -118,7 +118,7 @@ class Lapic : public Apic
             write(LAPIC_TMR_ICR, val);
         }
 
-        [[gnu::always_inline]]
+        [[gnu::always_inline]] [[nodiscard]]
         static inline unsigned get_timer()
         {
             return read(LAPIC_TMR_CCR);

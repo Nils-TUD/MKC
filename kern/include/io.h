@@ -22,7 +22,7 @@ class Io
 {
     public:
         template <typename T>
-        [[gnu::always_inline]]
+        [[gnu::always_inline]] [[nodiscard]]
         static inline unsigned in(unsigned port)
         {
             T val;
