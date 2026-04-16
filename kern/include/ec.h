@@ -34,7 +34,7 @@ class Ec
         [[gnu::regparm(1)]]
         static void handle_exc(Exc_regs *) asm("exc_handler");
 
-        [[gnu::noreturn]]
+        [[noreturn]]
         static void handle_tss() asm("tss_handler");
 
         static bool handle_exc_ts(Exc_regs *);
@@ -75,13 +75,13 @@ class Ec
         [[gnu::hot, noreturn]]
         static void ret_user_sysexit();
 
-        [[gnu::noreturn]]
+        [[noreturn]]
         static void ret_user_iret() asm("ret_user_iret");
 
         [[noreturn]]
         static void root_invoke();
 
-        [[gnu::hot, gnu::noreturn, gnu::regparm(1)]]
+        [[gnu::hot, noreturn, gnu::regparm(1)]]
         static void syscall_handler(uint8) asm("syscall_handler");
 
         [[gnu::always_inline]]

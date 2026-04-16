@@ -34,6 +34,6 @@ class Gsi
         [[gnu::section(".init")]]
         static void setup();
 
-        [[gnu::noreturn, gnu::regparm(1)]]
+        [[noreturn, gnu::regparm(1)]]
         static void vector(unsigned) asm("gsi_vector");
 };
