@@ -67,11 +67,11 @@ void Ec::ret_user_iret()
 
 void Ec::root_invoke()
 {
-    // usercode starts at USER_ADDR in user virtual space.
-    mword code = USER_ADDR;
+    // usercode starts at USER_CODE in user virtual space.
+    mword code = USER_CODE;
 
-    Ptab::insert_mapping(PAGE_SIZE, Kalloc::virt2phys(Kalloc::allocator.alloc_page(1)), 0x7);
-    Ptab::insert_mapping(USER_ADDR, reinterpret_cast<mword>(&USER_P), 0x7);
+    Ptab::insert_mapping(USER_STACK, Kalloc::virt2phys(Kalloc::allocator.alloc_page(1)), 0x7);
+    Ptab::insert_mapping(USER_CODE, reinterpret_cast<mword>(&USER_P), 0x7);
 
     printf("iret to user ...\n");
 

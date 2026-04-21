@@ -25,7 +25,8 @@
 
 #define LOAD_ADDR 0x200000
 
-#define USER_ADDR 0x00007ffffffff000
+#define USER_CODE  0x2000
+#define USER_STACK 0x1000
 
 #define LINK_ADDR 0xffffffff81000000
 
