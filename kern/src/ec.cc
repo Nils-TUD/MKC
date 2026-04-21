@@ -45,7 +45,7 @@ Ec::Ec(mword rip, mword rsp)
 
 void Ec::ret_user_sysexit()
 {
-    asm volatile("lea %0," EXPAND(PREG(sp); LOAD_GPR RET_USER_HYP)
+    asm volatile("lea %0," EXPAND(PREG(sp); LOAD_GPR RET_USER_SYSC)
                  :
                  : "m"(current->regs)
                  : "memory");

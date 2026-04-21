@@ -77,7 +77,7 @@
 
 #define DROP_EXC        add     $(2 * SIZE), PREG(sp);
 
-#define RET_USER_HYP    mov     PREG(11), PREG(sp);     \
+#define RET_USER_SYSC   mov     PREG(11), PREG(sp);     \
                         mov     $0x200, PREG(11);       \
                         sysretq;
 
