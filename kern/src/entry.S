@@ -47,10 +47,9 @@ handlers:
 /*
  * Full exception state save. After SAVE_STATE:
  *   rbx = pointer to saved Sys_regs (bottom of GPR area)
- *   If from user: switches to kernel stack, reloads ds/es
+ *   If from user: switches to kernel stack
  */
 .macro                  SAVE_STATE
-                        SAVE_SEG
                         SAVE_GPR
                         mov     %rsp, %rbx
                         cmp     $KSTCK_ADDR, %rsp
@@ -151,7 +150,7 @@ entry_lvt:              push    $0
 ret_from_interrupt:     testb   $3, OFS_CS(%rbx)
                         jnz     ret_user_iret
                         LOAD_GPR
-                        LOAD_SEG
+                        DROP_EXC
                         RET_USER_EXC
 
 /*
@@ -168,7 +167,7 @@ ret_from_interrupt:     testb   $3, OFS_CS(%rbx)
 .align                  4, 0x90
 .globl                  entry_sysenter
 entry_sysenter:         LOAD_KSP
-                        lea     -11*SIZE(%rsp), %rsp
+                        lea     -7*SIZE(%rsp), %rsp
                         SAVE_GPR
                         mov     $(KSTCK_ADDR + PAGE_SIZE), %rsp
                         and     $0xf, %ARG_1

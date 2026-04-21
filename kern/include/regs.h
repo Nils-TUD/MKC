@@ -59,20 +59,15 @@ class Sys_regs
 };
 
 /*
- * Full exception frame.  Offsets from start of Sys_regs:
- *   +0x80: gs   +0x88: fs   +0x90: es   +0x98: ds
- *   +0xa0: err  +0xa8: vec
- *   +0xb0: rip  +0xb8: cs   +0xc0: rfl  +0xc8: rsp  +0xd0: ss
+ * Full exception frame. Offsets from start of Sys_regs:
+ *   +0x80: err  +0x88: vec
+ *   +0x90: rip  +0x98: cs   +0xa0: rfl  +0xa8: rsp  +0xb0: ss
  */
 class Exc_regs : public Sys_regs
 {
     public:
         union {
                 struct {
-                        mword gs;
-                        mword fs;
-                        mword es;
-                        mword ds;
                         mword err;
                         mword vec;
                         mword rip;
@@ -92,4 +87,4 @@ class Exc_regs : public Sys_regs
 };
 
 static_assert(sizeof(Sys_regs) == 0x80, "Sys_regs must match SAVE_GPR layout");
-static_assert(sizeof(Exc_regs) == 0xd8, "Exc_regs must match exception frame layout");
+static_assert(sizeof(Exc_regs) == 0xb8, "Exc_regs must match exception frame layout");

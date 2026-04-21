@@ -35,14 +35,11 @@
 #define REG(X)          r##X
 #define ARG_1           REG(di)
 #define OFS_CR2         0x58
-#define OFS_VEC         0xa8
-#define OFS_CS          0xb8
+#define OFS_VEC         0x88
+#define OFS_CS          0x98
 
 #define LOAD_KSP        mov     PREG(sp), PREG(11);     \
                         mov     tss_run + 4, PREG(sp)
-
-#define SAVE_SEG        sub     $(4 * SIZE), PREG(sp);
-#define LOAD_SEG        add     $(6 * SIZE), PREG(sp);
 
 #define SAVE_GPR        push    PREG(ax);               \
                         push    PREG(cx);               \
@@ -77,6 +74,8 @@
                         pop     PREG(dx);               \
                         pop     PREG(cx);               \
                         pop     PREG(ax);
+
+#define DROP_EXC        add     $(2 * SIZE), PREG(sp);
 
 #define RET_USER_HYP    mov     PREG(11), PREG(sp);     \
                         mov     $0x200, PREG(11);       \

@@ -28,8 +28,6 @@ Ec::Ec(void (*f)(), mword mbi) : cont(f)
 {
     regs.rdi = mbi; /* SysV ABI: first arg in rdi */
     regs.cs  = SEL_USER_CODE;
-    regs.ds  = SEL_USER_DATA;
-    regs.es  = SEL_USER_DATA;
     regs.ss  = SEL_USER_DATA;
     regs.rfl = 0x200; // IF = 1
 }
@@ -39,8 +37,6 @@ Ec::Ec(mword rip, mword rsp)
 {
     cont     = ret_user_iret;
     regs.cs  = SEL_USER_CODE;
-    regs.ds  = SEL_USER_DATA;
-    regs.es  = SEL_USER_DATA;
     regs.ss  = SEL_USER_DATA;
     regs.rfl = 0x200; // IF = 1
     regs.rip = rip;
@@ -59,7 +55,7 @@ void Ec::ret_user_sysexit()
 
 void Ec::ret_user_iret()
 {
-    asm volatile("lea %0," EXPAND(PREG(sp); LOAD_GPR LOAD_SEG RET_USER_EXC)
+    asm volatile("lea %0," EXPAND(PREG(sp); LOAD_GPR DROP_EXC RET_USER_EXC)
                  :
                  : "m"(current->regs)
                  : "memory");
