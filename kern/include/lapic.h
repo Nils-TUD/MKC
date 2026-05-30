@@ -127,6 +127,5 @@ class Lapic : public Apic
         static void init();
         static void calibrate();
 
-        [[gnu::regparm(1)]]
         static void lvt_vector(unsigned) asm("lvt_vector");
 };

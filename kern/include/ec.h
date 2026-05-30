@@ -32,7 +32,6 @@ class Ec
         Exc_regs regs;
         Ec      *prev, *next;
 
-        [[gnu::regparm(1)]]
         static void handle_exc(Exc_regs *) asm("exc_handler");
 
         [[noreturn]]
@@ -84,7 +83,7 @@ class Ec
         [[noreturn]]
         static void root_invoke();
 
-        [[gnu::hot, noreturn, gnu::regparm(1)]]
+        [[gnu::hot, noreturn]]
         static void syscall_handler(uint8) asm("syscall_handler");
 
         static void sys_dump();
