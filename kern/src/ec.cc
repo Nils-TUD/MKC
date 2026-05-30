@@ -17,9 +17,11 @@
  * GNU General Public License version 2 for more details.
  */
 
+#include "assert.h"
 #include "ec.h"
 #include "arch.h"
 #include "cpu.h"
+#include "kalloc.h"
 #include "ptab.h"
 #include "multiboot.h"
 #include "elf.h"
@@ -30,16 +32,18 @@ Ec *Ec::current = 0;
 // solely used for root_invoke()
 Ec::Ec(void (*f)(), mword mbi) : cont(f)
 {
-    regs.rdi = mbi; /* SysV ABI: first arg in rdi */
-    regs.cs  = SEL_USER_CODE;
-    regs.ss  = SEL_USER_DATA;
-    regs.rfl = 0x200; // IF = 1
+    regs.rdi   = mbi; /* SysV ABI: first arg in rdi */
+    regs.cs    = SEL_USER_CODE;
+    regs.ss    = SEL_USER_DATA;
+    regs.rfl   = 0x200; // IF = 1
+    utcb       = nullptr;
+    utcb_vaddr = 0;
 
     enqueue();
 }
 
 // only used by syscall create thread (EC+SC)
-Ec::Ec(mword rip, mword rsp)
+Ec::Ec(mword rip, mword rsp, mword utcb_addr)
 {
     cont     = ret_user_iret;
     regs.cs  = SEL_USER_CODE;
@@ -48,7 +52,15 @@ Ec::Ec(mword rip, mword rsp)
     regs.rip = rip;
     regs.rsp = rsp;
 
+    alloc_utcb(utcb_addr);
     enqueue();
+}
+
+void Ec::alloc_utcb(mword addr)
+{
+    utcb       = Kalloc::allocator.alloc_page(1, Kalloc::FILL_0);
+    utcb_vaddr = addr;
+    Ptab::insert_mapping(addr, Kalloc::virt2phys(utcb), 0x7);
 }
 
 void Ec::enqueue()
@@ -176,11 +188,22 @@ void Ec::sys_dump()
 
 void Ec::sys_create_ec()
 {
-    mword rip = current->sys_regs()->rsi;
-    mword rsp = current->sys_regs()->rdx;
-    Ec   *ec  = new Ec(rip, rsp);
+    mword rip       = current->sys_regs()->rsi;
+    mword rsp       = current->sys_regs()->rdx;
+    mword utcb_addr = current->sys_regs()->rax;
 
-    printf("EC:%p SYS_CREATE_EC EC:%p (RIP=%#lx RSP=%#lx)\n", current, ec, rip, rsp);
+    assert(utcb_addr >= PAGE_SIZE);
+    assert(utcb_addr + PAGE_SIZE <= USER_ADDR);
+    assert((utcb_addr & PAGE_MASK) == 0);
+
+    Ec *ec = new Ec(rip, rsp, utcb_addr);
+
+    printf("EC:%p SYS_CREATE_EC EC:%p (RIP=%#lx RSP=%#lx UTCB=%#lx)\n",
+           current,
+           ec,
+           rip,
+           rsp,
+           utcb_addr);
 }
 
 void Ec::sys_yield()

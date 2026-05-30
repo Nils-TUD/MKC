@@ -32,6 +32,9 @@ class Ec
         Exc_regs regs;
         Ec      *prev, *next;
 
+        void *utcb;
+        mword utcb_vaddr;
+
         static void handle_exc(Exc_regs *) asm("exc_handler");
 
         [[noreturn]]
@@ -51,13 +54,14 @@ class Ec
             return &regs;
         }
 
+        void alloc_utcb(mword addr);
         void enqueue();
 
     public:
         static Ec *current;
 
         Ec(void (*)(), mword = 0);
-        Ec(mword, mword);
+        Ec(mword, mword, mword);
 
         [[gnu::always_inline, noreturn]]
         inline void make_current()
