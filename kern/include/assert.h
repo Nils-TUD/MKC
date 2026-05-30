@@ -18,12 +18,16 @@
 
 #pragma once
 
+#include "compiler.h"
+#include "stdio.h"
+
 #ifdef DEBUG
 #define assert(X)                                                                 \
     do {                                                                          \
-        if (EXPECT_FALSE(!(X)))                                                   \
+        if (EXPECT_FALSE(!(X))) {                                                 \
             printf("Assertion \"%s\" failed at %s:%d\n", #X, __FILE__, __LINE__); \
-        FAIL;                                                                     \
+            FAIL;                                                                 \
+        }                                                                         \
     } while (0)
 #else
 #define assert(X)        \

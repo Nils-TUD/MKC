@@ -42,7 +42,7 @@ endif
 check = $(shell if $(CC) $(1) -c -xc++ /dev/null -o /dev/null >/dev/null 2>&1; then echo "$(1)"; fi)
 
 # Preprocessor options
-DEFINES		:=
+DEFINES		:= DEBUG
 VPATH		:= $(SRC_DIR)
 PFLAGS		:= $(addprefix -D, $(DEFINES)) $(addprefix -I, $(INC_DIR))
 
