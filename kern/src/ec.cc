@@ -307,8 +307,14 @@ void Ec::sys_reply()
 
     printf("EC:%p SYS_REPLY\n", current);
 
-    // TODO copy message and switch back
-    FAIL;
+    Ec *caller      = current->caller;
+
+    current->caller = nullptr;
+    current->state  = WAITING;
+    memcpy(caller->utcb, current->utcb, PAGE_SIZE);
+
+    caller->state = READY;
+    caller->make_current();
 }
 
 void Ec::recv_user()

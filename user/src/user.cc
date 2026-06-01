@@ -77,9 +77,9 @@ void sender()
 [[noreturn]]
 void portal()
 {
-    // TODO handle single request and reply
-    while (1)
-        sys_yield();
+    unsigned long *words  = UTCB_RECEIVER;
+    words[0]             += words[1];
+    sys_reply();
 }
 
 extern "C" [[noreturn]]
