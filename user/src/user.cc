@@ -21,9 +21,9 @@ void sys_create_ec(void (*eip)(), void *esp)
     syscall3(1, reinterpret_cast<unsigned long>(eip), reinterpret_cast<unsigned long>(esp));
 }
 
-unsigned long sys_yield()
+void sys_yield()
 {
-    return syscall1(2);
+    syscall1(2);
 }
 
 [[noreturn]]
