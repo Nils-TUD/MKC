@@ -63,6 +63,8 @@ class Ec
         Ec(void (*)(), mword = 0);
         Ec(mword, mword, mword);
 
+        static Ec *find_by_utcb(mword utcb);
+
         [[gnu::always_inline, noreturn]]
         inline void make_current()
         {
@@ -93,6 +95,8 @@ class Ec
         static void sys_dump();
 
         static void sys_create_ec();
+
+        static void sys_create_pt();
 
         static void sys_yield();
 

@@ -25,6 +25,7 @@
 #include "ptab.h"
 #include "multiboot.h"
 #include "elf.h"
+#include "pt.h"
 #include "bits.h"
 
 Ec *Ec::current = 0;
@@ -73,6 +74,17 @@ void Ec::enqueue()
         prev       = current->prev;
         next->prev = prev->next = this;
     }
+}
+
+Ec *Ec::find_by_utcb(mword utcb)
+{
+    Ec *ec = current->next;
+    while (ec->utcb_vaddr != utcb) {
+        if (ec == current)
+            return nullptr;
+        ec = ec->next;
+    }
+    return ec;
 }
 
 void Ec::ret_user_sysexit()
@@ -168,6 +180,10 @@ void Ec::syscall_handler(uint8 n)
         sys_yield();
         break;
 
+    case 3:
+        sys_create_pt();
+        break;
+
     default:
         printf("syscall %d - unknown\n", n);
         break;
@@ -195,6 +211,7 @@ void Ec::sys_create_ec()
     assert(utcb_addr >= PAGE_SIZE);
     assert(utcb_addr + PAGE_SIZE <= USER_ADDR);
     assert((utcb_addr & PAGE_MASK) == 0);
+    assert(find_by_utcb(utcb_addr) == nullptr);
 
     Ec *ec = new Ec(rip, rsp, utcb_addr);
 
@@ -204,6 +221,26 @@ void Ec::sys_create_ec()
            rip,
            rsp,
            utcb_addr);
+}
+
+void Ec::sys_create_pt()
+{
+    mword id        = current->sys_regs()->rsi;
+    mword rip       = current->sys_regs()->rdx;
+    mword recv_utcb = current->sys_regs()->rax;
+    assert(Pt::find_by_id(id) == nullptr);
+
+    Ec *recv = find_by_utcb(recv_utcb);
+    assert(recv != nullptr);
+
+    auto pt = new Pt(id, rip, recv);
+
+    printf("EC:%p SYS_CREATE_PT PT:%p (ID=%u RIP=%#lx RECV=%p)\n",
+           current,
+           pt,
+           pt->id,
+           pt->rip,
+           pt->recv);
 }
 
 void Ec::sys_yield()

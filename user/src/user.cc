@@ -39,6 +39,18 @@ void sys_yield()
     syscall1(2);
 }
 
+void sys_create_pt(int id, void (*eip)(), unsigned long *utcb)
+{
+    syscall4(3, id, reinterpret_cast<unsigned long>(eip), reinterpret_cast<unsigned long>(utcb));
+}
+
+[[noreturn]]
+void portal()
+{
+    while (1)
+        ;
+}
+
 [[noreturn]]
 void thread()
 {
