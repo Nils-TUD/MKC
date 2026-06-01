@@ -26,6 +26,12 @@ unsigned long syscall4(unsigned long w0, unsigned long w1, unsigned long w2, uns
     return w0;
 }
 
+void sys_dump(unsigned long w0, unsigned long w1)
+{
+    asm volatile("" ::"S"(w0), "d"(w1) : "memory");
+    syscall1(0);
+}
+
 void sys_create_ec(void (*eip)(), void *esp, unsigned long *utcb)
 {
     syscall4(1,
@@ -44,16 +50,31 @@ void sys_create_pt(int id, void (*eip)(), unsigned long *utcb)
     syscall4(3, id, reinterpret_cast<unsigned long>(eip), reinterpret_cast<unsigned long>(utcb));
 }
 
-[[noreturn]]
-void portal()
+void sys_call(unsigned long recv_utcb)
 {
+    syscall2(4, recv_utcb);
+}
+
+[[noreturn]]
+void sys_reply()
+{
+    syscall1(5);
+    __builtin_unreachable();
+}
+
+[[noreturn]]
+void sender()
+{
+    // TODO perform sys_call() in a loop
+    // TODO use dump to print out values
     while (1)
         ;
 }
 
 [[noreturn]]
-void thread()
+void portal()
 {
+    // TODO handle single request and reply
     while (1)
         sys_yield();
 }
@@ -63,8 +84,11 @@ void main_func()
 {
     char stack[128];
 
-    sys_create_ec(thread, stack + 64 * 1, UTCB_SENDER);
-    sys_create_ec(thread, stack + 64 * 2, UTCB_RECEIVER);
+    // sender therad
+    sys_create_ec(sender, stack + 64 * 1, UTCB_SENDER);
+    // receiver thread
+    sys_create_ec(0, stack + 64 * 2, UTCB_RECEIVER);
+    // TODO create portal
 
     while (1)
         sys_yield();

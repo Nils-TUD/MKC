@@ -56,6 +56,12 @@ class Sys_regs
                 };
                 mword gpr[16];
         };
+
+        [[gnu::always_inline]]
+        inline void set_ip(mword ip)
+        {
+            rcx = ip;
+        }
 };
 
 /*

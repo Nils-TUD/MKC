@@ -28,12 +28,22 @@
 class Ec
 {
     private:
+        enum State
+        {
+            READY,
+            WAITING,
+            BLOCKED,
+        };
+
         void     (*cont)();
         Exc_regs regs;
         Ec      *prev, *next;
 
         void *utcb;
         mword utcb_vaddr;
+
+        State state;
+        Ec   *caller;
 
         static void handle_exc(Exc_regs *) asm("exc_handler");
 
@@ -56,6 +66,9 @@ class Ec
 
         void alloc_utcb(mword addr);
         void enqueue();
+
+        [[noreturn]]
+        static void schedule();
 
     public:
         static Ec *current;
@@ -98,7 +111,17 @@ class Ec
 
         static void sys_create_pt();
 
+        [[noreturn]]
         static void sys_yield();
+
+        [[noreturn]]
+        static void sys_call();
+
+        [[noreturn]]
+        static void sys_reply();
+
+        [[noreturn]]
+        static void recv_user();
 
         [[gnu::always_inline]]
         static inline void *operator new(size_t)

@@ -26,6 +26,7 @@
 #include "multiboot.h"
 #include "elf.h"
 #include "pt.h"
+#include "string.h"
 #include "bits.h"
 
 Ec *Ec::current = 0;
@@ -39,6 +40,7 @@ Ec::Ec(void (*f)(), mword mbi) : cont(f)
     regs.rfl   = 0x200; // IF = 1
     utcb       = nullptr;
     utcb_vaddr = 0;
+    state      = READY;
 
     enqueue();
 }
@@ -52,6 +54,8 @@ Ec::Ec(mword rip, mword rsp, mword utcb_addr)
     regs.rfl = 0x200; // IF = 1
     regs.rip = rip;
     regs.rsp = rsp;
+    state    = rip == 0 ? WAITING : READY;
+    caller   = nullptr;
 
     alloc_utcb(utcb_addr);
     enqueue();
@@ -85,6 +89,17 @@ Ec *Ec::find_by_utcb(mword utcb)
         ec = ec->next;
     }
     return ec;
+}
+
+void Ec::schedule()
+{
+    Ec *n = current->next;
+    while (n->state != READY) {
+        if (n == current)
+            panic("No runnable Ec found");
+        n = n->next;
+    }
+    n->make_current();
 }
 
 void Ec::ret_user_sysexit()
@@ -184,6 +199,14 @@ void Ec::syscall_handler(uint8 n)
         sys_create_pt();
         break;
 
+    case 4:
+        sys_call();
+        break;
+
+    case 5:
+        sys_reply();
+        break;
+
     default:
         printf("syscall %d - unknown\n", n);
         break;
@@ -232,6 +255,7 @@ void Ec::sys_create_pt()
 
     Ec *recv = find_by_utcb(recv_utcb);
     assert(recv != nullptr);
+    assert(recv->utcb != nullptr);
 
     auto pt = new Pt(id, rip, recv);
 
@@ -245,10 +269,40 @@ void Ec::sys_create_pt()
 
 void Ec::sys_yield()
 {
-    printf("EC:%p SYS_YIELD to EC:%p\n", current, current->next);
+    printf("EC:%p SYS_YIELD\n", current);
 
     current->cont = ret_user_sysexit;
-    current->next->make_current();
+    schedule();
+}
+
+void Ec::sys_call()
+{
+    mword rid = current->sys_regs()->rsi;
+    Pt   *pt  = Pt::find_by_id(rid);
+    assert(current->utcb != nullptr);
+    assert(pt != nullptr);
+
+    printf("EC:%p SYS_CALL (PT=%u)\n", current, pt->id);
+
+    // TODO copy message if ready and switch
+    FAIL;
+}
+
+void Ec::sys_reply()
+{
+    assert(current->utcb != nullptr);
+    assert(current->caller != nullptr);
+
+    printf("EC:%p SYS_REPLY\n", current);
+
+    // TODO copy message and switch back
+    FAIL;
+}
+
+void Ec::recv_user()
+{
+    memcpy(current->utcb, current->caller->utcb, PAGE_SIZE);
+    ret_user_sysexit();
 }
 
 bool Ec::handle_exc_ts(Exc_regs *r)
