@@ -284,8 +284,20 @@ void Ec::sys_call()
 
     printf("EC:%p SYS_CALL (PT=%u)\n", current, pt->id);
 
-    // TODO copy message if ready and switch
-    FAIL;
+    Ec *recv = pt->recv;
+
+    if (recv->state == WAITING) {
+        current->cont  = ret_user_sysexit;
+        current->state = BLOCKED;
+        recv->cont     = recv_user;
+        recv->caller   = current;
+        recv->state    = READY;
+        recv->sys_regs()->set_ip(pt->rip);
+        recv->make_current();
+    }
+
+    current->cont = sys_call;
+    schedule();
 }
 
 void Ec::sys_reply()

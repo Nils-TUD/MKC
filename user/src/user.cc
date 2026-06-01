@@ -65,10 +65,13 @@ void sys_reply()
 [[noreturn]]
 void sender()
 {
-    // TODO perform sys_call() in a loop
-    // TODO use dump to print out values
-    while (1)
-        ;
+    unsigned long *words = UTCB_SENDER;
+    words[0]             = 1;
+    words[1]             = 2;
+    while (1) {
+        sys_call(0);
+        sys_dump(words[0], words[1]);
+    }
 }
 
 [[noreturn]]
@@ -88,7 +91,7 @@ void main_func()
     sys_create_ec(sender, stack + 64 * 1, UTCB_SENDER);
     // receiver thread
     sys_create_ec(0, stack + 64 * 2, UTCB_RECEIVER);
-    // TODO create portal
+    sys_create_pt(0, portal, UTCB_RECEIVER);
 
     while (1)
         sys_yield();
