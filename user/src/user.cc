@@ -1,3 +1,6 @@
+const unsigned long STACK_SIZE      = 64;
+const unsigned long STACK_WORDS     = STACK_SIZE / sizeof(unsigned long);
+
 const unsigned long   UTCBS_START   = 0x10000000;
 static unsigned long *UTCB_SENDER   = reinterpret_cast<unsigned long *>(UTCBS_START);
 static unsigned long *UTCB_RECEIVER = reinterpret_cast<unsigned long *>(UTCBS_START + 4096);
@@ -85,12 +88,12 @@ void portal()
 extern "C" [[noreturn]]
 void main_func()
 {
-    char stack[128];
+    unsigned long stack[STACK_WORDS * 2];
 
-    // sender therad
-    sys_create_ec(sender, stack + 64 * 1, UTCB_SENDER);
+    // sender thread
+    sys_create_ec(sender, stack + STACK_WORDS * 1, UTCB_SENDER);
     // receiver thread
-    sys_create_ec(0, stack + 64 * 2, UTCB_RECEIVER);
+    sys_create_ec(0, stack + STACK_WORDS * 2, UTCB_RECEIVER);
     sys_create_pt(0, portal, UTCB_RECEIVER);
 
     while (1)
