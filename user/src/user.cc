@@ -53,9 +53,9 @@ void sys_create_pt(int id, void (*eip)(), unsigned long *utcb)
     syscall4(3, id, reinterpret_cast<unsigned long>(eip), reinterpret_cast<unsigned long>(utcb));
 }
 
-void sys_call(unsigned long recv_utcb)
+void sys_call(int portal_id)
 {
-    syscall2(4, recv_utcb);
+    syscall2(4, portal_id);
 }
 
 [[noreturn]]

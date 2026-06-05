@@ -277,8 +277,8 @@ void Ec::sys_yield()
 
 void Ec::sys_call()
 {
-    mword rid = current->sys_regs()->rsi;
-    Pt   *pt  = Pt::find_by_id(rid);
+    mword portal_id = current->sys_regs()->rsi;
+    Pt   *pt        = Pt::find_by_id(portal_id);
     assert(current->utcb != nullptr);
     assert(pt != nullptr);
 
