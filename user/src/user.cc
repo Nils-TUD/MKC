@@ -136,6 +136,7 @@ void portal()
     words[0]              = INV_CAP;
     words[1]              = INV_CAP;
     words[3]             += words[4];
+    sys_yield();
 }
 
 extern "C" void reply_tramp();
@@ -165,6 +166,8 @@ void main_func()
         sys_create_ec(ROOT_PD_SEL, 0, local_ec_stack(stack + STACK_WORDS * 2), UTCB_RECEIVER);
     pt_sel = sys_create_pt(portal, rcvec_sel);
 
-    while (1)
+    while (1) {
         sys_yield();
+        sys_revoke(pt_sel);
+    }
 }
