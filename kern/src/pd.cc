@@ -39,11 +39,19 @@ void Pd::del_cap(Pd *snd, mword snd_sel, mword rcv_sel)
            snd_sel,
            rcv_sel);
 
-    // TODO find mdb node
-    // TODO check if rcv_sel is free
-    // TODO create new mdb node
-    // TODO insert and update
-    // TODO remember delegation
+    if (rcv_sel >= MAX_CAPS)
+        return;
+    Mdb *mdb = snd->list_lookup(snd_sel);
+    if (!mdb)
+        return;
+    if (list_lookup(rcv_sel))
+        return;
+
+    Mdb *node = new Mdb(this, rcv_sel, mdb->kobj);
+    list_insert(node);
+    mdb->add_del(node);
+
+    update(node);
 }
 
 void Pd::revoke_rec(Mdb *node)
