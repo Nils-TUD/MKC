@@ -119,8 +119,10 @@ void main_func()
     // sender thread in root PD
     sys_create_ec(ROOT_PD_SEL, sender, stack + STACK_WORDS * 1, UTCB_SENDER);
 
-    // TODO create receiver thread in new PD
-    // TODO create portal and remember sel in pt_sel
+    unsigned long pd_sel = sys_create_pd();
+    unsigned long ptec_sel =
+        sys_create_ec(pd_sel, 0, local_ec_stack(stack + STACK_WORDS * 2), UTCB_RECEIVER);
+    pt_sel = sys_create_pt(portal, ptec_sel);
 
     while (1)
         sys_yield();
