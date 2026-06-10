@@ -37,8 +37,9 @@ bool Space::insert_root(Kobject *kobj)
 
 bool Space::table_insert(Kobject *kobj, mword sel)
 {
-    // TODO insert cap into table
-    // TODO what if the selector is invalid?
+    if (sel >= MAX_CAPS)
+        return false;
+    table[sel] = Capability(kobj);
 
     printf("EC:%p table_insert(sel=%#lx)\n", Ec::current, sel);
     return true;
@@ -57,5 +58,9 @@ Mdb *Space::list_lookup(mword sel)
 
 void Space::list_insert(Mdb *node)
 {
-    // TODO insert node into list
+    node->prev = nullptr;
+    node->next = head;
+    if (head)
+        head->prev = node;
+    head = node;
 }
