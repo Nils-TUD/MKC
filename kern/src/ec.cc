@@ -53,9 +53,12 @@ Ec::Ec(mword rip, mword rsp, mword utcb_addr)
     regs.ss  = SEL_USER_DATA;
     regs.rfl = 0x200; // IF = 1
     regs.rip = rip;
-    regs.rsp = rsp;
-    state    = rip == 0 ? WAITING : READY;
-    caller   = nullptr;
+    if (rip == 0)
+        regs.r11 = rsp;
+    else
+        regs.rsp = rsp;
+    state  = rip == 0 ? WAITING : READY;
+    caller = nullptr;
 
     alloc_utcb(utcb_addr);
     enqueue();
