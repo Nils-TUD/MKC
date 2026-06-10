@@ -45,3 +45,21 @@ void Pd::del_cap(Pd *snd, mword snd_sel, mword rcv_sel)
     // TODO insert and update
     // TODO remember delegation
 }
+
+void Pd::revoke_rec(Mdb *node)
+{
+    // TODO remove from list
+    // TODO remove from table
+    // TODO remove childs
+}
+
+void Pd::revoke(mword sel)
+{
+    Mdb *mdb = list_lookup(sel);
+    if (!mdb)
+        return;
+
+    if (mdb->first_del)
+        revoke_rec(mdb->first_del);
+    mdb->first_del = nullptr;
+}

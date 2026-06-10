@@ -116,6 +116,8 @@ class Ec : public Kobject
 
         static void sys_create_pd();
 
+        static void sys_revoke();
+
         [[noreturn]]
         static void sys_yield();
 

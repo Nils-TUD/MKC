@@ -205,6 +205,10 @@ void Ec::syscall_handler(uint8 n)
         sys_create_pd();
         break;
 
+    case 7:
+        sys_revoke();
+        break;
+
     default:
         printf("syscall %d - unknown\n", n);
         break;
@@ -283,6 +287,15 @@ void Ec::sys_create_pd()
         pd->del_cap(current->pd, del_sel, del_sel);
 
     printf("EC:%p SYS_CREATE_PD PD:%#lx (DEL:%#lx)\n", current, pd_sel, del_sel);
+}
+
+void Ec::sys_revoke()
+{
+    mword sel = current->sys_regs()->rsi;
+
+    printf("EC:%p SYS_REVOKE SEL:%#lx\n", current, sel);
+
+    current->pd->revoke(sel);
 }
 
 void Ec::sys_yield()

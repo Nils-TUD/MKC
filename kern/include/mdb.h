@@ -26,11 +26,13 @@
 
 class Kobject;
 class Space;
+class Pd;
 
 class Mdb
 {
     protected:
         friend class Space;
+        friend class Pd;
         Mdb *prev;
         Mdb *next;
         Mdb *first_del;

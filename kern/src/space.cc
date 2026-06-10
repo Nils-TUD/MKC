@@ -45,6 +45,12 @@ bool Space::table_insert(Kobject *kobj, mword sel)
     return true;
 }
 
+void Space::table_remove(mword sel)
+{
+    table[sel] = Capability();
+    printf("EC:%p table_remove(sel=%#lx)\n", Ec::current, sel);
+}
+
 Mdb *Space::list_lookup(mword sel)
 {
     Mdb *node = head;
@@ -63,4 +69,14 @@ void Space::list_insert(Mdb *node)
     if (head)
         head->prev = node;
     head = node;
+}
+
+void Space::list_remove(Mdb *node)
+{
+    if (node->prev)
+        node->prev->next = node->next;
+    else
+        head = node->next;
+    if (node->next)
+        node->next->prev = node->prev;
 }

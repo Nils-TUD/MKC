@@ -91,6 +91,11 @@ unsigned long sys_create_pd(unsigned long del_sel)
     return sel;
 }
 
+void sys_revoke(unsigned long sel)
+{
+    syscall2(7, sel);
+}
+
 unsigned long tramppt_sel;
 unsigned long pt_sel;
 

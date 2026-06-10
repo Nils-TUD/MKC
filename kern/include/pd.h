@@ -37,6 +37,8 @@ class Pd : public Kobject, public Space
 
         void del_cap(Pd *snd, mword snd_sel, mword rcv_sel);
 
+        void revoke(mword sel);
+
         [[gnu::always_inline]]
         static inline void *operator new(size_t)
         {
@@ -47,4 +49,7 @@ class Pd : public Kobject, public Space
         static inline void operator delete(void *)
         { /* nop */
         }
+
+    private:
+        static void revoke_rec(Mdb *node);
 };

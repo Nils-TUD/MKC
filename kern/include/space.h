@@ -49,6 +49,9 @@ class Space
         void update(Mdb *node) { table_insert(node->kobj, node->selector); }
 
         bool table_insert(Kobject *kobj, mword sel);
+        void table_remove(mword sel);
+
         Mdb *list_lookup(mword sel);
         void list_insert(Mdb *node);
+        void list_remove(Mdb *node);
 };
