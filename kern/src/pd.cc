@@ -21,6 +21,7 @@
  */
 
 #include "initprio.h"
+#include "ec.h"
 #include "pd.h"
 
 [[gnu::init_priority(PRIO_CONSOLE)]]
@@ -29,3 +30,18 @@ Pd Pd::root(&Pd::root);
 Pd::Pd(Pd *own) : Kobject(PD, own) {}
 
 Pd::Pd(Pd *own, mword sel) : Kobject(PD, own, sel) {}
+
+void Pd::del_cap(Pd *snd, mword snd_sel, mword rcv_sel)
+{
+    printf("EC:%p del_cap(snd=%#lx, snd_sel=%#lx, rcv_sel=%#lx)\n",
+           Ec::current,
+           snd->selector,
+           snd_sel,
+           rcv_sel);
+
+    // TODO find mdb node
+    // TODO check if rcv_sel is free
+    // TODO create new mdb node
+    // TODO insert and update
+    // TODO remember delegation
+}

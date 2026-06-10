@@ -26,6 +26,7 @@
 #include "regs.h"
 #include "stdio.h"
 #include "tss.h"
+#include "utcb.h"
 
 class Ec : public Kobject
 {
@@ -41,7 +42,7 @@ class Ec : public Kobject
         Exc_regs regs;
         Ec      *prev, *next;
 
-        void *utcb;
+        Utcb *utcb;
         mword utcb_vaddr;
 
         State state;
@@ -126,6 +127,8 @@ class Ec : public Kobject
 
         [[noreturn]]
         static void recv_user();
+
+        template <bool C> static void delegate();
 
         [[gnu::always_inline]]
         static inline void *operator new(size_t)

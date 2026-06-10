@@ -27,8 +27,8 @@
 #include "elf.h"
 #include "pd.h"
 #include "pt.h"
-#include "string.h"
 #include "bits.h"
+#include "space.h"
 
 Ec *Ec::current = 0;
 
@@ -68,7 +68,7 @@ Ec::Ec(Pd *own, mword sel, Pd *p, mword rip, mword rsp, mword utcb_addr)
 
 void Ec::alloc_utcb(mword addr)
 {
-    utcb       = Kalloc::allocator.alloc_page(1, Kalloc::FILL_0);
+    utcb       = new Utcb();
     utcb_vaddr = addr;
     Ptab::insert_mapping(addr, Kalloc::virt2phys(utcb), 0x7);
 }
@@ -272,13 +272,17 @@ void Ec::sys_create_pt()
 
 void Ec::sys_create_pd()
 {
-    mword pd_sel = current->sys_regs()->rsi;
+    mword pd_sel  = current->sys_regs()->rsi;
+    mword del_sel = current->sys_regs()->rdx;
 
-    auto pd      = new Pd(current->pd, pd_sel);
-    bool res     = current->pd->insert_root(pd);
+    auto pd       = new Pd(current->pd, pd_sel);
+    bool res      = current->pd->insert_root(pd);
     assert(res);
 
-    printf("EC:%p SYS_CREATE_PD PD:%#lx\n", current, pd_sel);
+    if (del_sel != INV_CAP)
+        pd->del_cap(current->pd, del_sel, del_sel);
+
+    printf("EC:%p SYS_CREATE_PD PD:%#lx (DEL:%#lx)\n", current, pd_sel, del_sel);
 }
 
 void Ec::sys_yield()
@@ -316,6 +320,16 @@ void Ec::sys_call()
     schedule();
 }
 
+template <bool C> void Ec::delegate()
+{
+    Ec *ec  = current->caller;
+
+    Ec *src = C ? ec : current;
+    Ec *dst = C ? current : ec;
+
+    dst->pd->del_cap(src->pd, src->utcb->send_typed(), dst->utcb->recv_typed());
+}
+
 void Ec::sys_reply()
 {
     assert(current->utcb != nullptr);
@@ -323,19 +337,24 @@ void Ec::sys_reply()
 
     printf("EC:%p SYS_REPLY\n", current);
 
-    Ec *caller      = current->caller;
+    Ec *caller = current->caller;
+
+    current->utcb->save(caller->utcb);
+    if (current->utcb->send_typed() != INV_CAP)
+        delegate<false>();
 
     current->caller = nullptr;
     current->state  = WAITING;
-    memcpy(caller->utcb, current->utcb, PAGE_SIZE);
-
-    caller->state = READY;
+    caller->state   = READY;
     caller->make_current();
 }
 
 void Ec::recv_user()
 {
-    memcpy(current->utcb, current->caller->utcb, PAGE_SIZE);
+    current->caller->utcb->save(current->utcb);
+    if (current->caller->utcb->send_typed() != INV_CAP)
+        delegate<true>();
+
     ret_user_sysexit();
 }
 

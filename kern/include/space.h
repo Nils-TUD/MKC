@@ -28,6 +28,7 @@
 #include "memory.h"
 
 const mword MAX_CAPS = PAGE_SIZE / sizeof(Capability);
+const mword INV_CAP  = MAX_CAPS;
 
 class Space
 {
@@ -45,6 +46,7 @@ class Space
         }
 
         bool insert_root(Kobject *kobj);
+        void update(Mdb *node) { table_insert(node->kobj, node->selector); }
 
         bool table_insert(Kobject *kobj, mword sel);
         Mdb *list_lookup(mword sel);

@@ -1,5 +1,5 @@
 /*
- * Mapping Database
+ * User Thread Control Block (UTCB)
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
@@ -23,40 +23,41 @@
 #pragma once
 
 #include "kalloc.h"
+#include "types.h"
 
-class Kobject;
-class Space;
-
-class Mdb
+class Utcb
 {
-    protected:
-        friend class Space;
-        Mdb *prev;
-        Mdb *next;
-        Mdb *first_del;
-        Mdb *next_del;
+    private:
+        mword rcv_typed;
+        mword snd_typed;
+        mword untyped;
+        mword mr[];
 
     public:
-        Space *const space;
-        mword        selector;
-        Kobject     *kobj;
-
-        explicit Mdb(Space *s, mword sel, Kobject *k)
-            : prev(this), next(this), first_del(), next_del(), space(s), selector(sel), kobj(k)
+        [[gnu::always_inline]]
+        inline void save(Utcb *dst)
         {
+            dst->untyped = untyped;
+            for (mword i = 0; i < untyped; i++)
+                dst->mr[i] = mr[i];
         }
 
         [[gnu::always_inline]]
-        inline void add_del(Mdb *node)
+        inline mword recv_typed() const
         {
-            node->next_del = first_del;
-            first_del      = node;
+            return rcv_typed;
+        }
+
+        [[gnu::always_inline]]
+        inline mword send_typed() const
+        {
+            return snd_typed;
         }
 
         [[gnu::always_inline]]
         static inline void *operator new(size_t)
         {
-            return Kalloc::allocator.alloc(sizeof(Mdb));
+            return Kalloc::allocator.alloc_page(1, Kalloc::FILL_0);
         }
 
         [[gnu::always_inline]]

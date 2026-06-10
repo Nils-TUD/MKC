@@ -35,6 +35,8 @@ class Pd : public Kobject, public Space
         Pd(Pd *own);
         Pd(Pd *own, mword selector);
 
+        void del_cap(Pd *snd, mword snd_sel, mword rcv_sel);
+
         [[gnu::always_inline]]
         static inline void *operator new(size_t)
         {
