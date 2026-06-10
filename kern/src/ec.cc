@@ -235,11 +235,13 @@ void Ec::sys_create_ec()
     assert(utcb_addr + PAGE_SIZE <= USER_ADDR);
     assert((utcb_addr & PAGE_MASK) == 0);
 
-    // TODO retrieve Pd
-    // TODO create Ec
-    // TODO insert Ec into current Pd
+    Capability cap = current->pd->lookup(pd_sel);
+    assert(cap.ptr && cap.ptr->type() == Kobject::PD);
+    Pd *pd   = static_cast<Pd *>(cap.ptr);
 
-    Ec *ec = nullptr;
+    auto ec  = new Ec(current->pd, ec_sel, pd, rip, rsp, utcb_addr);
+    bool res = current->pd->insert_root(ec);
+    assert(res);
 
     printf("EC:%p SYS_CREATE_EC EC:%#lx (RIP=%#lx RSP=%#lx UTCB=%#lx, PTR=%p)\n",
            current,
