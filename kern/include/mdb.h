@@ -1,8 +1,11 @@
 /*
- * Portal
+ * Mapping Database
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ *
+ * Copyright (C) 2012 Udo Steinberg, Intel Corporation.
+ *
  * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
@@ -20,23 +23,31 @@
 #pragma once
 
 #include "kalloc.h"
-#include "kobject.h"
-#include "stdio.h"
-#include "ec.h"
-#include "pd.h"
 
-class Pt : public Kobject
+class Kobject;
+class Space;
+
+class Mdb
 {
-    public:
-        mword rip;
-        Ec   *recv;
+    protected:
+        friend class Space;
+        Mdb *prev;
+        Mdb *next;
 
-        Pt(Pd *own, mword sel, mword rip, Ec *recv);
+    public:
+        Space *const space;
+        mword        selector;
+        Kobject     *kobj;
+
+        explicit Mdb(Space *s, mword sel, Kobject *k)
+            : prev(this), next(this), space(s), selector(sel), kobj(k)
+        {
+        }
 
         [[gnu::always_inline]]
         static inline void *operator new(size_t)
         {
-            return Kalloc::allocator.alloc(sizeof(Pt));
+            return Kalloc::allocator.alloc(sizeof(Mdb));
         }
 
         [[gnu::always_inline]]

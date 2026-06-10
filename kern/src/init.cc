@@ -88,7 +88,8 @@ void bootstrap(mword addr)
     pml4[0]     = 0;
     Cpu::flush();
 
-    Ec::current = new Ec(Ec::root_invoke, addr);
+    Ec::current = new Ec(&Pd::root, Ec::root_invoke, addr);
+    Pd::root.insert_root(&Pd::root);
     Ec::current->make_current();
 
     UNREACHED;

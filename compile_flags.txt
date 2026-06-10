@@ -11,6 +11,7 @@
 -funit-at-a-time
 -fno-exceptions
 -fno-rtti
+-fno-threadsafe-statics
 -fno-stack-protector
 -fvisibility-inlines-hidden
 -Wall

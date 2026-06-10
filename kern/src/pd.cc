@@ -1,8 +1,12 @@
 /*
- * Static Initialization Priorities
+ * Portal
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ *
+ * Copyright (C) 2012 Udo Steinberg, Intel Corporation.
+ *
+ * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -16,13 +20,12 @@
  * GNU General Public License version 2 for more details.
  */
 
-#pragma once
+#include "initprio.h"
+#include "pd.h"
 
-#define AFTER(X) (X + 1)
+[[gnu::init_priority(PRIO_CONSOLE)]]
+Pd Pd::root(&Pd::root);
 
-#define PRIO_GLOBAL  100
-#define PRIO_CONSOLE AFTER(PRIO_GLOBAL)
-#define PRIO_BUDDY   AFTER(PRIO_CONSOLE)
-#define PRIO_SLAB    AFTER(PRIO_BUDDY)
-#define PRIO_PD      AFTER(PRIO_BUDDY)
-#define PRIO_LOCAL   0xfffe
+Pd::Pd(Pd *own) : Kobject(PD, own) {}
+
+Pd::Pd(Pd *own, mword sel) : Kobject(PD, own, sel) {}

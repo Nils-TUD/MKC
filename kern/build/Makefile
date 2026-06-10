@@ -53,7 +53,7 @@ AFLAGS		:= -m64 -march=core2 -mpreferred-stack-boundary=4 -mcmodel=kernel -mno-r
 
 # Language options
 FFLAGS		:= -fdata-sections -ffunction-sections -freg-struct-return -freorder-blocks -funit-at-a-time
-FFLAGS		+= -fno-exceptions -fno-rtti
+FFLAGS		+= -fno-exceptions -fno-rtti -fno-threadsafe-statics
 FFLAGS		+= $(call check,-fno-stack-protector)
 FFLAGS		+= $(call check,-fvisibility-inlines-hidden)
 

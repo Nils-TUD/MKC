@@ -18,28 +18,5 @@
  */
 
 #include "pt.h"
-#include <memory.h>
 
-Pt *Pt::head = nullptr;
-
-Pt::Pt(int _id, mword _rip, Ec *_recv) : id(_id), rip(_rip), recv(_recv)
-{
-    enqueue();
-}
-
-void Pt::enqueue()
-{
-    next = head;
-    head = this;
-}
-
-Pt *Pt::find_by_id(int id)
-{
-    Pt *p = head;
-    while (p != nullptr) {
-        if (p->id == id)
-            return p;
-        p = p->next;
-    }
-    return nullptr;
-}
+Pt::Pt(Pd *own, mword sel, mword _rip, Ec *_recv) : Kobject(PT, own, sel), rip(_rip), recv(_recv) {}

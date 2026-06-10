@@ -1,8 +1,12 @@
 /*
- * Static Initialization Priorities
+ * Capability
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ *
+ * Copyright (C) 2012 Udo Steinberg, Intel Corporation.
+ *
+ * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -18,11 +22,12 @@
 
 #pragma once
 
-#define AFTER(X) (X + 1)
+#include "kobject.h"
 
-#define PRIO_GLOBAL  100
-#define PRIO_CONSOLE AFTER(PRIO_GLOBAL)
-#define PRIO_BUDDY   AFTER(PRIO_CONSOLE)
-#define PRIO_SLAB    AFTER(PRIO_BUDDY)
-#define PRIO_PD      AFTER(PRIO_BUDDY)
-#define PRIO_LOCAL   0xfffe
+class Capability
+{
+    public:
+        Kobject *ptr;
+
+        Capability(Kobject *p = nullptr) : ptr(p) {}
+};

@@ -25,6 +25,7 @@
 #include "ptab.h"
 #include "multiboot.h"
 #include "elf.h"
+#include "pd.h"
 #include "pt.h"
 #include "string.h"
 #include "bits.h"
@@ -32,7 +33,7 @@
 Ec *Ec::current = 0;
 
 // solely used for root_invoke()
-Ec::Ec(void (*f)(), mword mbi) : cont(f)
+Ec::Ec(Pd *own, void (*f)(), mword mbi) : Kobject(EC, own), cont(f), pd(own)
 {
     regs.rdi   = mbi; /* SysV ABI: first arg in rdi */
     regs.cs    = SEL_USER_CODE;
@@ -46,7 +47,8 @@ Ec::Ec(void (*f)(), mword mbi) : cont(f)
 }
 
 // only used by syscall create thread (EC+SC)
-Ec::Ec(mword rip, mword rsp, mword utcb_addr)
+Ec::Ec(Pd *own, mword sel, Pd *p, mword rip, mword rsp, mword utcb_addr)
+    : Kobject(EC, own, sel), pd(p)
 {
     cont     = ret_user_iret;
     regs.cs  = SEL_USER_CODE;
@@ -81,17 +83,6 @@ void Ec::enqueue()
         prev       = current->prev;
         next->prev = prev->next = this;
     }
-}
-
-Ec *Ec::find_by_utcb(mword utcb)
-{
-    Ec *ec = current->next;
-    while (ec->utcb_vaddr != utcb) {
-        if (ec == current)
-            return nullptr;
-        ec = ec->next;
-    }
-    return ec;
 }
 
 void Ec::schedule()
@@ -210,6 +201,10 @@ void Ec::syscall_handler(uint8 n)
         sys_reply();
         break;
 
+    case 6:
+        sys_create_pd();
+        break;
+
     default:
         printf("syscall %d - unknown\n", n);
         break;
@@ -233,41 +228,55 @@ void Ec::sys_create_ec()
     mword rip       = current->sys_regs()->rsi;
     mword rsp       = current->sys_regs()->rdx;
     mword utcb_addr = current->sys_regs()->rax;
+    mword ec_sel    = current->sys_regs()->rbx;
+    mword pd_sel    = current->sys_regs()->r8;
 
     assert(utcb_addr >= PAGE_SIZE);
     assert(utcb_addr + PAGE_SIZE <= USER_ADDR);
     assert((utcb_addr & PAGE_MASK) == 0);
-    assert(find_by_utcb(utcb_addr) == nullptr);
 
-    Ec *ec = new Ec(rip, rsp, utcb_addr);
+    // TODO retrieve Pd
+    // TODO create Ec
+    // TODO insert Ec into current Pd
 
-    printf("EC:%p SYS_CREATE_EC EC:%p (RIP=%#lx RSP=%#lx UTCB=%#lx)\n",
+    Ec *ec = nullptr;
+
+    printf("EC:%p SYS_CREATE_EC EC:%#lx (RIP=%#lx RSP=%#lx UTCB=%#lx, PTR=%p)\n",
            current,
-           ec,
+           ec_sel,
            rip,
            rsp,
-           utcb_addr);
+           utcb_addr,
+           ec);
 }
 
 void Ec::sys_create_pt()
 {
-    mword id        = current->sys_regs()->rsi;
-    mword rip       = current->sys_regs()->rdx;
-    mword recv_utcb = current->sys_regs()->rax;
-    assert(Pt::find_by_id(id) == nullptr);
+    mword pt_sel      = current->sys_regs()->rsi;
+    mword rip         = current->sys_regs()->rdx;
+    mword ec_sel      = current->sys_regs()->rax;
 
-    Ec *recv = find_by_utcb(recv_utcb);
-    assert(recv != nullptr);
+    Capability ec_cap = current->pd->lookup(ec_sel);
+    assert(ec_cap.ptr && ec_cap.ptr->type() == Kobject::EC);
+    Ec *recv = static_cast<Ec *>(ec_cap.ptr);
     assert(recv->utcb != nullptr);
 
-    auto pt = new Pt(id, rip, recv);
+    auto pt  = new Pt(current->pd, pt_sel, rip, recv);
+    bool res = current->pd->insert_root(pt);
+    assert(res);
 
-    printf("EC:%p SYS_CREATE_PT PT:%p (ID=%u RIP=%#lx RECV=%p)\n",
-           current,
-           pt,
-           pt->id,
-           pt->rip,
-           pt->recv);
+    printf("EC:%p SYS_CREATE_PT PT:%#lx (RIP=%#lx RECV=%p)\n", current, pt_sel, pt->rip, pt->recv);
+}
+
+void Ec::sys_create_pd()
+{
+    mword pd_sel = current->sys_regs()->rsi;
+
+    auto pd      = new Pd(current->pd, pd_sel);
+    bool res     = current->pd->insert_root(pd);
+    assert(res);
+
+    printf("EC:%p SYS_CREATE_PD PD:%#lx\n", current, pd_sel);
 }
 
 void Ec::sys_yield()
@@ -280,13 +289,15 @@ void Ec::sys_yield()
 
 void Ec::sys_call()
 {
-    mword portal_id = current->sys_regs()->rsi;
-    Pt   *pt        = Pt::find_by_id(portal_id);
+    mword pt_sel = current->sys_regs()->rsi;
+
     assert(current->utcb != nullptr);
-    assert(pt != nullptr);
 
-    printf("EC:%p SYS_CALL (PT=%u)\n", current, pt->id);
+    printf("EC:%p SYS_CALL (PT=%#lx)\n", current, pt_sel);
 
+    Capability pt_cap = current->pd->lookup(pt_sel);
+    assert(pt_cap.ptr && pt_cap.ptr->type() == Kobject::PT);
+    Pt *pt   = static_cast<Pt *>(pt_cap.ptr);
     Ec *recv = pt->recv;
 
     if (recv->state == WAITING) {

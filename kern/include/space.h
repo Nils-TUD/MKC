@@ -1,8 +1,11 @@
 /*
- * Portal
+ * Object Capability Space
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
+ *
+ * Copyright (C) 2012 Udo Steinberg, Intel Corporation.
+ *
  * Copyright (C) 2026 Nils Asmussen, Barkhausen Institut
  *
  * This file is part of the NOVA microhypervisor.
@@ -19,28 +22,31 @@
 
 #pragma once
 
-#include "kalloc.h"
+#include "capability.h"
 #include "kobject.h"
-#include "stdio.h"
-#include "ec.h"
-#include "pd.h"
+#include "mdb.h"
+#include "memory.h"
 
-class Pt : public Kobject
+const mword MAX_CAPS = PAGE_SIZE / sizeof(Capability);
+
+class Space
 {
+    private:
+        Capability *table;
+        Mdb        *head;
+
     public:
-        mword rip;
-        Ec   *recv;
+        Space();
 
-        Pt(Pd *own, mword sel, mword rip, Ec *recv);
-
-        [[gnu::always_inline]]
-        static inline void *operator new(size_t)
+        const Capability &lookup(mword sel)
         {
-            return Kalloc::allocator.alloc(sizeof(Pt));
+            static Capability invalid;
+            return sel >= MAX_CAPS ? invalid : table[sel];
         }
 
-        [[gnu::always_inline]]
-        static inline void operator delete(void *)
-        { /* nop */
-        }
+        bool insert_root(Kobject *kobj);
+
+        bool table_insert(Kobject *kobj, mword sel);
+        Mdb *list_lookup(mword sel);
+        void list_insert(Mdb *node);
 };

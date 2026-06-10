@@ -20,12 +20,14 @@
 
 #include "compiler.h"
 #include "kalloc.h"
+#include "kobject.h"
 #include "memory.h"
+#include "pd.h"
 #include "regs.h"
 #include "stdio.h"
 #include "tss.h"
 
-class Ec
+class Ec : public Kobject
 {
     private:
         enum State
@@ -44,6 +46,8 @@ class Ec
 
         State state;
         Ec   *caller;
+
+        Pd *pd;
 
         static void handle_exc(Exc_regs *) asm("exc_handler");
 
@@ -73,10 +77,8 @@ class Ec
     public:
         static Ec *current;
 
-        Ec(void (*)(), mword = 0);
-        Ec(mword, mword, mword);
-
-        static Ec *find_by_utcb(mword utcb);
+        Ec(Pd *own, void (*)(), mword = 0);
+        Ec(Pd *own, mword sel, Pd *pd, mword, mword, mword);
 
         [[gnu::always_inline, noreturn]]
         inline void make_current()
@@ -110,6 +112,8 @@ class Ec
         static void sys_create_ec();
 
         static void sys_create_pt();
+
+        static void sys_create_pd();
 
         [[noreturn]]
         static void sys_yield();
