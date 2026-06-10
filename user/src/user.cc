@@ -59,13 +59,6 @@ void sys_call(int portal_id)
 }
 
 [[noreturn]]
-void sys_reply()
-{
-    syscall1(5);
-    __builtin_unreachable();
-}
-
-[[noreturn]]
 void sender()
 {
     unsigned long *words = UTCB_SENDER;
@@ -77,12 +70,18 @@ void sender()
     }
 }
 
-[[noreturn]]
 void portal()
 {
     unsigned long *words  = UTCB_RECEIVER;
     words[0]             += words[1];
-    sys_reply();
+}
+
+extern "C" void reply_tramp();
+
+unsigned long *local_ec_stack(unsigned long *stack)
+{
+    stack[-1] = reinterpret_cast<unsigned long>(reply_tramp);
+    return stack - 1;
 }
 
 extern "C" [[noreturn]]
@@ -93,7 +92,7 @@ void main_func()
     // sender thread
     sys_create_ec(sender, stack + STACK_WORDS * 1, UTCB_SENDER);
     // receiver thread
-    sys_create_ec(0, stack + STACK_WORDS * 2, UTCB_RECEIVER);
+    sys_create_ec(0, local_ec_stack(stack + STACK_WORDS * 2), UTCB_RECEIVER);
     sys_create_pt(0, portal, UTCB_RECEIVER);
 
     while (1)
