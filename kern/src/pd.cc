@@ -56,9 +56,13 @@ void Pd::del_cap(Pd *snd, mword snd_sel, mword rcv_sel)
 
 void Pd::revoke_rec(Mdb *node)
 {
-    // TODO remove from list
-    // TODO remove from table
-    // TODO remove childs
+    node->space->list_remove(node);
+    node->space->table_remove(node->selector);
+
+    if (node->first_del)
+        revoke_rec(node->first_del);
+    if (node->next_del)
+        revoke_rec(node->next_del);
 }
 
 void Pd::revoke(mword sel)
